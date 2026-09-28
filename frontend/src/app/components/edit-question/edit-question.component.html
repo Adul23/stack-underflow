@@ -1,0 +1,43 @@
+<form>
+    <h2>Edit Question</h2>
+    <div class="main_block">
+        <div class="block">
+            <h4>Title</h4>
+            <h6>Be specific and imagine you're asking a question to another person</h6>
+            <input [(ngModel)]="title" [ngModelOptions]="{ standalone: true }" type="text" placeholder="e.g. How do I use Django models?" />
+            <p *ngIf="title_empty">Write a title!</p>
+        </div>
+
+        <div class="block">
+            <h4>Body</h4>
+            <h6>Include all the information about your question</h6>
+            <textarea rows="8" [(ngModel)]="description" [ngModelOptions]="{ standalone: true }" placeholder="Describe your programming question."></textarea>
+            <p *ngIf="description_empty">Explain the question!</p>
+        </div>
+
+        <div class="block">
+            <h4>Tags</h4>
+            <h6>Write tags like hashtags</h6>
+            <div *ngFor="let t of tagInputs; let i = index; trackBy: trackByIndex">
+                <input [(ngModel)]="tagInputs[i]" [ngModelOptions]="{ standalone: true }" placeholder="#python" />
+            </div>
+            <button type="button" (click)="addTag()">➕ Add tag</button>
+            <p *ngIf="tag_empty">Choose at least one tag!</p>
+        </div>
+
+        <div class="block">
+            <h4>Active</h4>
+            <h6>Check if this question should be active</h6>
+            <input type="checkbox" [(ngModel)]="isActive" [ngModelOptions]="{ standalone: true }" id="is_active" />
+            <label for="is_active">{{ isActive ? 'Active' : 'Inactive' }}</label>
+        </div>
+
+        <button type="button" (click)="check()" class="btn btn-lg btn-primary">Submit</button>
+
+        <div *ngIf="isCompleted" class="confirm-block">
+            <h5>Are you sure you want to save these changes?</h5>
+            <button type="button" (click)="editquestion()" class="btn btn-lg btn-primary">Yes</button>
+            <button type="button" (click)="recheck()" class="btn btn-lg btn-primary">No</button>
+        </div>
+    </div>
+</form>

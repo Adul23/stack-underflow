@@ -1,0 +1,1514 @@
+openapi: 3.0.3
+info:
+  title: STACK UNDERFLOW API
+  version: 1.0.0
+  description: API documentation for users, tags, questions, and comments.
+paths:
+  /api/tags/create:
+    post:
+      operationId: tags_create_create
+      description: Creates a new tag using the provided name. Authentication is required.
+        If a tag with the same name already exists, the existing tag is returned instead
+        of creating a duplicate.
+      summary: Create a new tag
+      tags:
+      - Tags
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagCreateRequest'
+            examples:
+              CreateTagRequestExample:
+                value:
+                  name: Machine Learning
+                summary: Create tag request example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TagCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TagCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagDetail'
+              examples:
+                CreateTagResponseExample:
+                  value:
+                    id: 3
+                    name: Machine Learning
+                    slug: machine-learning
+                  summary: Create tag response example
+          description: Tag was created successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagValidationErrorResponse'
+          description: Validation error.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagErrorResponse'
+          description: Authentication credentials were not provided or are invalid.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagErrorResponse'
+          description: Forbidden.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagErrorResponse'
+          description: Not found.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagErrorResponse'
+          description: Too many requests.
+  /api/tags/list:
+    get:
+      operationId: tags_list_retrieve
+      description: Returns a list of all tags. Authentication is not required, but
+        authenticated and unauthenticated users may both access this endpoint.
+      summary: List all tags
+      tags:
+      - Tags
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TagList'
+              examples:
+                ListTagsResponseExample:
+                  value:
+                  - - id: 1
+                      name: Python
+                      slug: python
+                    - id: 2
+                      name: Django
+                      slug: django
+                  summary: List tags response example
+          description: Tags were returned successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagValidationErrorResponse'
+          description: Bad request.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagErrorResponse'
+          description: Unauthorized.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagErrorResponse'
+          description: Forbidden.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagErrorResponse'
+          description: Not found.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagErrorResponse'
+          description: Too many requests.
+  /api/tags/{slug}/retrieve:
+    get:
+      operationId: tags_retrieve_retrieve
+      description: Returns detailed information about a tag and the list of questions
+        linked to it. Authentication is not required.
+      summary: Retrieve tag by slug
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+          description: The slug of the tag.
+        required: true
+      tags:
+      - Tags
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagRetrieveResponse'
+              examples:
+                RetrieveTagResponseExample:
+                  value:
+                    tag:
+                      id: 1
+                      name: Django
+                      slug: django
+                    questions:
+                    - id: 10
+                      title: How to use serializers?
+                      slug: how-to-use-serializers
+                  summary: Retrieve tag response example
+          description: Tag and related questions were returned successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagValidationErrorResponse'
+          description: Bad request.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagErrorResponse'
+          description: Unauthorized.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagErrorResponse'
+          description: Forbidden.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagErrorResponse'
+              examples:
+                RetrieveTagNotFoundExample:
+                  value:
+                    detail: Tag does not exist
+                  summary: Retrieve tag not found example
+          description: Tag was not found.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagErrorResponse'
+          description: Too many requests.
+  /api/questions:
+    get:
+      operationId: questions_retrieve
+      tags:
+      - questions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: questions_create
+      tags:
+      - questions
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          description: No response body
+  /api/questions/create:
+    post:
+      operationId: questions_create_create
+      description: Creates a new question. Authentication is required. The request
+        body must contain the fields required by the question creation serializer.
+      summary: Create a new question
+      tags:
+      - Questions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestionCreateRequest'
+            examples:
+              CreateQuestionRequestExample:
+                value:
+                  title: How to use serializers in Django?
+                  description: Please explain with a simple example.
+                  tag:
+                  - 1
+                  - 2
+                summary: Create question request example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuestionCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuestionCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionDetail'
+              examples:
+                CreateQuestionResponseExample:
+                  value:
+                    id: 1
+                    title: How to use serializers in Django?
+                    description: Please explain with a simple example.
+                    slug: how-to-use-serializers-in-django
+                  summary: Create question response example
+          description: Question was created successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionValidationErrorResponse'
+          description: Validation error.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Authentication credentials were not provided or are invalid.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Forbidden.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Not found.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Too many requests.
+  /api/questions/list:
+    get:
+      operationId: questions_list_retrieve
+      description: Returns a list of all questions. Authentication is not required.
+      summary: List all questions
+      tags:
+      - Questions
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuestionList'
+              examples:
+                ListQuestionsResponseExample:
+                  value:
+                  - - id: 1
+                      title: How to use serializers in Django?
+                      slug: how-to-use-serializers-in-django
+                    - id: 2
+                      title: How to connect JWT auth?
+                      slug: how-to-connect-jwt-auth
+                  summary: List questions response example
+          description: Questions were returned successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionValidationErrorResponse'
+          description: Bad request.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Unauthorized.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Forbidden.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Not found.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Too many requests.
+  /api/questions/list_by_author:
+    get:
+      operationId: questions_list_by_author_retrieve
+      description: Returns a list of questions created by a specific author. Authentication
+        is not required. The author must be passed as a required query parameter.
+      summary: List questions by author
+      parameters:
+      - in: query
+        name: author
+        schema:
+          type: integer
+        description: Author user ID
+        required: true
+      tags:
+      - Questions
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuestionList'
+              examples:
+                ListQuestionsByAuthorResponseExample:
+                  value:
+                  - - id: 3
+                      title: How to create JWT login?
+                      slug: how-to-create-jwt-login
+                  summary: List questions by author response example
+          description: Questions by author were returned successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionValidationErrorResponse'
+          description: Bad request.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Unauthorized.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Forbidden.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Not found.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Too many requests.
+  /api/questions/{slug}:
+    delete:
+      operationId: questions_destroy
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+          description: The slug of the question.
+        required: true
+      tags:
+      - questions
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+    get:
+      operationId: questions_retrieve_2
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+          description: The slug of the question.
+        required: true
+      tags:
+      - questions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: questions_update
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+          description: The slug of the question.
+        required: true
+      tags:
+      - questions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    patch:
+      operationId: questions_partial_update
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+          description: The slug of the question.
+        required: true
+      tags:
+      - questions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/questions/{slug}/create_comment:
+    post:
+      operationId: questions_create_comment_create
+      description: Creates a new comment for the selected question. Authentication
+        is required. The request body must contain the comment text.
+      summary: Create comment for a question
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+          description: The slug of the question.
+        required: true
+      tags:
+      - Questions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NestedCommentCreateRequest'
+            examples:
+              CreateCommentRequestExample:
+                value:
+                  text: You should use serializers for validation and transformation.
+                summary: Create comment request example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NestedCommentCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NestedCommentCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentList'
+              examples:
+                CreateCommentResponseExample:
+                  value:
+                    id: 1
+                    text: You should use serializers for validation and transformation.
+                  summary: Create comment response example
+          description: Comment was created successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionValidationErrorResponse'
+          description: Validation error.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Authentication credentials were not provided or are invalid.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Forbidden.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Question was not found.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Too many requests.
+  /api/questions/{slug}/destroy:
+    delete:
+      operationId: questions_destroy_destroy
+      description: Deletes a question by its slug. Authentication is required. Only
+        the author of the question can delete it.
+      summary: Delete question by slug
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+          description: The slug of the question.
+        required: true
+      tags:
+      - Questions
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Question was deleted successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionValidationErrorResponse'
+          description: Bad request.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Authentication credentials were not provided or are invalid.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+              examples:
+                DeleteForbiddenExample:
+                  value:
+                    detail: You are not the author of this question
+                  summary: Delete forbidden example
+          description: User is not allowed to delete this question.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Question was not found.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Too many requests.
+  /api/questions/{slug}/retrieve:
+    get:
+      operationId: questions_retrieve_retrieve
+      description: Returns detailed information about a single question and all comments
+        related to it. Authentication is not required.
+      summary: Retrieve question by slug
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+          description: The slug of the question.
+        required: true
+      tags:
+      - Questions
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionRetrieveResponse'
+              examples:
+                RetrieveQuestionResponseExample:
+                  value:
+                    question:
+                      id: 1
+                      title: How to use serializers in Django?
+                      description: I want to understand why serializers are needed.
+                      slug: how-to-use-serializers-in-django
+                    comments:
+                    - id: 1
+                      text: They validate and transform data.
+                  summary: Retrieve question response example
+          description: Question and related comments were returned successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionValidationErrorResponse'
+          description: Bad request.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Unauthorized.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Forbidden.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+              examples:
+                QuestionNotFoundExample:
+                  value:
+                    detail: Question does not exist
+                  summary: Question not found example
+          description: Question was not found.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Too many requests.
+  /api/questions/{slug}/update:
+    patch:
+      operationId: questions_update_partial_update
+      description: Partially updates an existing question by its slug. Authentication
+        is required. Only the author of the question can update it. The request body
+        may contain one or more editable fields.
+      summary: Update question by slug
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+          description: The slug of the question.
+        required: true
+      tags:
+      - Questions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedQuestionUpdateRequest'
+            examples:
+              UpdateQuestionRequestExample:
+                value:
+                  title: How do serializers work in Django REST Framework?
+                summary: Update question request example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedQuestionUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedQuestionUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionUpdateResponse'
+              examples:
+                UpdateQuestionResponseExample:
+                  value:
+                    details: The question successfully updated
+                    data:
+                      title: How do serializers work in Django REST Framework?
+                  summary: Update question response example
+          description: Question was updated successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionValidationErrorResponse'
+          description: Validation error.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Authentication credentials were not provided or are invalid.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+              examples:
+                UpdateForbiddenExample:
+                  value:
+                    detail: You can edit only your question
+                  summary: Update forbidden example
+          description: User is not allowed to update this question.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Question was not found.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionErrorResponse'
+          description: Too many requests.
+  /api/comments:
+    get:
+      operationId: comments_list
+      description: Returns a list of all comments. Authentication is not required.
+      summary: List all comments
+      tags:
+      - Comments
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentList'
+              examples:
+                ListCommentsResponseExample:
+                  value:
+                  - - id: 1
+                      text: You should use serializers for validation.
+                    - id: 2
+                      text: JWT is useful for stateless authentication.
+                  summary: List comments response example
+          description: Comments were returned successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentValidationErrorResponse'
+          description: Bad request.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentErrorResponse'
+          description: Unauthorized.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentErrorResponse'
+          description: Forbidden.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentErrorResponse'
+          description: Not found.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentErrorResponse'
+          description: Too many requests.
+  /api/comments/create:
+    post:
+      operationId: comments_create_create
+      description: Creates a new comment. Authentication is required. The request
+        body must contain the fields required by the comment creation serializer.
+      summary: Create a new comment
+      tags:
+      - Comments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentCreateRequest'
+            examples:
+              CreateCommentRequestExample:
+                value:
+                  text: I think serializers are needed for validation and representation.
+                  question: 1
+                summary: Create comment request example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommentCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommentCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentList'
+              examples:
+                CreateCommentResponseExample:
+                  value:
+                    id: 1
+                    text: I think serializers are needed for validation and representation.
+                  summary: Create comment response example
+          description: Comment was created successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentValidationErrorResponse'
+          description: Validation error.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentErrorResponse'
+          description: Authentication credentials were not provided or are invalid.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentErrorResponse'
+          description: Forbidden.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentErrorResponse'
+          description: Related resource was not found.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentErrorResponse'
+          description: Too many requests.
+  /api/comments/list_by_author:
+    get:
+      operationId: comments_list_by_author_retrieve
+      description: Returns a list of comments created by a specific author. Authentication
+        is not required. The author must be passed as a required query parameter.
+      summary: List comments by author
+      parameters:
+      - in: query
+        name: author
+        schema:
+          type: integer
+        description: Author user ID
+        required: true
+      tags:
+      - Comments
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentList'
+              examples:
+                ListCommentsByAuthorResponseExample:
+                  value:
+                  - - id: 3
+                      text: This is my comment.
+                  summary: List comments by author response example
+          description: Comments by author were returned successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentErrorResponse'
+              examples:
+                AuthorQueryParamMissingExample:
+                  value:
+                    detail: author is required
+                  summary: Author query param missing example
+          description: The required query parameter is missing or invalid.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentErrorResponse'
+          description: Unauthorized.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentErrorResponse'
+          description: Forbidden.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentErrorResponse'
+          description: Not found.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentErrorResponse'
+          description: Too many requests.
+  /api/comments/{id}/update:
+    patch:
+      operationId: comments_update_partial_update
+      description: Partially updates an existing comment by its id. Authentication
+        is required. Only the author of the comment can update it. The request body
+        may contain one or more editable fields.
+      summary: Update comment by id
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this comments.
+        required: true
+      tags:
+      - Comments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentUpdateRequest'
+            examples:
+              UpdateCommentRequestExample:
+                value:
+                  text: Updated comment text
+                summary: Update comment request example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentUpdateResponse'
+              examples:
+                UpdateCommentResponseExample:
+                  value:
+                    details: The comment successfully updated
+                    data:
+                      id: 1
+                      text: Updated comment text
+                  summary: Update comment response example
+          description: Comment was updated successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentValidationErrorResponse'
+          description: Validation error.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentErrorResponse'
+          description: Authentication credentials were not provided or are invalid.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentErrorResponse'
+              examples:
+                UpdateCommentForbiddenExample:
+                  value:
+                    detail: You can edit only your comment
+                  summary: Update comment forbidden example
+          description: User is not allowed to update this comment.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentErrorResponse'
+              examples:
+                UpdateCommentNotFoundExample:
+                  value:
+                    detail: The comment does not exist
+                  summary: Update comment not found example
+          description: Comment was not found.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentErrorResponse'
+          description: Too many requests.
+  /api/users/token/refresh:
+    post:
+      operationId: users_token_refresh_create
+      description: Return a new access token from a refresh token.
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/users/register:
+    post:
+      operationId: users_register_create
+      description: ViewSet for Custom User model
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/user/token/refresh/:
+    post:
+      operationId: user_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+components:
+  schemas:
+    CommentCreateRequest:
+      type: object
+      properties:
+        question:
+          type: integer
+        text:
+          type: string
+          minLength: 1
+          maxLength: 300
+      required:
+      - question
+      - text
+    CommentErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
+    CommentList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        author:
+          type: integer
+        question:
+          type: integer
+        text:
+          type: string
+          maxLength: 300
+        author_email:
+          type: string
+          format: email
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - author
+      - author_email
+      - created_at
+      - id
+      - question
+      - text
+      - updated_at
+    CommentUpdateResponse:
+      type: object
+      properties:
+        details:
+          type: string
+        data:
+          $ref: '#/components/schemas/CommentList'
+      required:
+      - data
+      - details
+    CommentValidationErrorResponse:
+      type: object
+      properties:
+        text:
+          type: array
+          items:
+            type: string
+        question:
+          type: array
+          items:
+            type: string
+        detail:
+          type: string
+    NestedCommentCreateRequest:
+      type: object
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 300
+      required:
+      - text
+    PatchedCommentUpdateRequest:
+      type: object
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 300
+    PatchedQuestionUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          description: The title of the question.
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+          description: The description of the question.
+        tag:
+          type: array
+          items:
+            type: integer
+          description: The tags of the question.
+        is_active:
+          type: boolean
+          description: Whether the question is active or not.
+    QuestionCreateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          description: The title of the question.
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+          description: The description of the question.
+        tag:
+          type: array
+          items:
+            type: integer
+          description: The tags of the question.
+      required:
+      - title
+    QuestionDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          description: The title of the question.
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+          description: The description of the question.
+        slug:
+          type: string
+          description: The slug of the question.
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        tag:
+          type: array
+          items:
+            type: integer
+          description: The tags of the question.
+        author:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        is_active:
+          type: boolean
+          description: Whether the question is active or not.
+      required:
+      - author
+      - created_at
+      - id
+      - slug
+      - title
+    QuestionErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
+    QuestionList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          description: The title of the question.
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+          description: The description of the question.
+        slug:
+          type: string
+          description: The slug of the question.
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        tag:
+          type: array
+          items:
+            type: integer
+          description: The tags of the question.
+        author:
+          type: integer
+        is_active:
+          type: boolean
+          description: Whether the question is active or not.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - author
+      - created_at
+      - id
+      - slug
+      - title
+    QuestionRetrieveResponse:
+      type: object
+      properties:
+        question:
+          $ref: '#/components/schemas/QuestionDetail'
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentList'
+      required:
+      - comments
+      - question
+    QuestionUpdate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          description: The title of the question.
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+          description: The description of the question.
+        tag:
+          type: array
+          items:
+            type: integer
+          description: The tags of the question.
+        is_active:
+          type: boolean
+          description: Whether the question is active or not.
+      required:
+      - id
+      - title
+    QuestionUpdateResponse:
+      type: object
+      properties:
+        details:
+          type: string
+        data:
+          $ref: '#/components/schemas/QuestionUpdate'
+      required:
+      - data
+      - details
+    QuestionValidationErrorResponse:
+      type: object
+      properties:
+        title:
+          type: array
+          items:
+            type: string
+        description:
+          type: array
+          items:
+            type: string
+        tag:
+          type: array
+          items:
+            type: string
+        text:
+          type: array
+          items:
+            type: string
+        detail:
+          type: string
+    TagCreateRequest:
+      type: object
+      description: Serializer for creating a tag.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: The name of the tag.
+          maxLength: 255
+      required:
+      - name
+    TagDetail:
+      type: object
+      description: Serializer for retrieving a tag.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          description: The name of the tag.
+          maxLength: 255
+        slug:
+          type: string
+          description: The slug of the tag.
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+      required:
+      - id
+      - name
+      - slug
+    TagErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
+    TagList:
+      type: object
+      description: Serializer for a list of tags.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          description: The name of the tag.
+          maxLength: 255
+        slug:
+          type: string
+          description: The slug of the tag.
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+      required:
+      - id
+      - name
+      - slug
+    TagRetrieveResponse:
+      type: object
+      properties:
+        tag:
+          $ref: '#/components/schemas/TagDetail'
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestionList'
+      required:
+      - questions
+      - tag
+    TagValidationErrorResponse:
+      type: object
+      properties:
+        name:
+          type: array
+          items:
+            type: string
+        detail:
+          type: string
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+      required:
+      - access
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - refresh
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+- name: Auth
+  description: Authentication and token endpoints.
+- name: Users
+  description: User management endpoints.
+- name: Tags
+  description: Tag endpoints.
+- name: Questions
+  description: Question endpoints.
+- name: Comments
+  description: Comment endpoints.
+- name: Docs
+  description: OpenAPI schema and UI endpoints.

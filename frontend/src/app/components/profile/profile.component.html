@@ -1,0 +1,49 @@
+<div class="home-container">
+    <div *ngIf="user" class="text">
+
+        <div class="profile-avatar">
+            {{ user.first_name[0] }}{{ user.last_name[0] }}
+        </div>
+
+        <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+        <p class="lead">{{ user.email }}</p>
+
+        <div class="profile-badges">
+            <span class="badge" [class.badge-active]="user.is_active" [class.badge-inactive]="!user.is_active">
+        {{ user.is_active ? 'Active' : 'Inactive' }}
+      </span>
+            <span *ngIf="user.is_admin" class="badge badge-admin">
+        🛡️ Admin
+      </span>
+        </div>
+
+        <div *ngIf="isOwner" class="mt-4">
+            <button class="btn btn-primary me-2" (click)="editProfile()">Edit Profile</button>
+        </div>
+
+        <div class="features mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-4">
+                    <i class="bi bi-envelope-fill fs-2"></i>
+                    <h5>Email</h5>
+                    <p>{{ user.email }}</p>
+                </div>
+                <div class="col-md-4">
+                    <i class="bi bi-person-fill fs-2"></i>
+                    <h5>Full Name</h5>
+                    <p>{{ user.first_name }} {{ user.last_name }}</p>
+                </div>
+                <div class="col-md-4">
+                    <i class="bi bi-shield-fill fs-2"></i>
+                    <h5>Role</h5>
+                    <p>{{ user.is_admin ? 'Administrator' : 'User' }}</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div *ngIf="!user" class="text">
+        <h1>Loading...</h1>
+    </div>
+</div>

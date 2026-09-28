@@ -1,0 +1,43 @@
+<div class="questions-container container">
+    <div *ngIf="logged" class="ask-button-wrapper">
+        <a routerLink="/newquestion" class="btn btn-primary ask-btn">Ask Question</a>
+    </div>
+    <div *ngIf="!logged" class="ask-button-wrapper">
+        <button class="btn btn-outline-primary ask-btn" (click)="alert()">Ask Question</button>
+        <h6 *ngIf="alertF" class="alert-msg">To ask a question, please log in.</h6>
+    </div>
+
+    <h1>Questions</h1>
+    <form (ngSubmit)="search()" class="d-flex gap-2 mb-4">
+        <input class="form-control" name="search" [(ngModel)]="query" placeholder="Search questions..." aria-label="Search questions" />
+        <button class="btn btn-primary" type="submit" [disabled]="loading">Search</button>
+    </form>
+    <p *ngIf="loading">Loading questions...</p>
+    <p *ngIf="error" role="alert">{{ error }}</p>
+
+    <div class="question-list">
+        <div *ngFor="let question of filteredQuestions" class="question-card">
+            <a [routerLink]="['/questions', question.slug]" class="question-link">
+                <div class="question-content">
+                    <h5>{{ question.title }}</h5>
+                    <p>{{ question.description }}</p>
+                    <small class="date">{{ question.created_at | date: 'HH:mm, dd/MM/yyyy' }}</small>
+                </div>
+            </a>
+
+            <!-- ✅ теги -->
+            <div class="question-tags">
+                <span *ngFor="let tagId of question.tag.slice(0, 3)" class="tag">
+                    #{{ getTagName(tagId) }}
+                </span>
+                <span *ngIf="question.tag.length > 3" class="tag tag-more">
+                    +{{ question.tag.length - 3 }}
+                </span>
+            </div>
+        </div>
+
+        <p *ngIf="!loading && !error && filteredQuestions.length === 0" class="text-muted mt-3">
+            No questions found.
+        </p>
+    </div>
+</div>

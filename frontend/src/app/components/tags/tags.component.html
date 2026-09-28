@@ -1,0 +1,14 @@
+<div class="container tag-container">
+    <div>
+        <h3 class="tags-title">Explore Tags</h3>
+        <p class="tags-subtext">
+            Tags help group related questions together so you can find answers faster. Click on a tag to see all questions in that category!
+        </p>
+    </div>
+
+    <div class="tag-grid">
+        <div *ngFor="let tag of tags" class="tag-card">
+            <a [routerLink]="['/tags', tag.slug]" class="tag-link">#{{ tag.name }}</a>
+        </div>
+    </div>
+</div>

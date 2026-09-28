@@ -1,0 +1,14 @@
+<div class="user-list-container">
+    <div class="user-card" *ngFor="let user of users">
+        <div class="user-avatar">
+            {{ user.first_name[0] }}{{ user.last_name[0] }}
+        </div>
+        <div class="user-info">
+            <a [routerLink]="['/users', user.id]" class="username">
+
+                {{ user.first_name }} {{ user.last_name }}
+            </a>
+            <p class="email">{{ user.email }}</p>
+        </div>
+    </div>
+</div>

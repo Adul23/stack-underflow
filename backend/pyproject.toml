@@ -1,0 +1,18 @@
+[tool.ruff]
+# Django standard line length limit
+line-length = 119
+
+# Target Python version
+target-version = "py310"
+
+[tool.ruff.lint]
+# Enable Pyflakes (F), pycodestyle (E, W), and isort (I)
+select = ["E", "W", "F", "I"]
+
+# Never format or lint Django migration files
+exclude = [
+    "**/migrations/*.py",
+    ".git",
+    "venv",
+    ".venv"
+]

@@ -1,0 +1,105 @@
+.home-container {
+    background: linear-gradient(to bottom right, #e9f1f7, #f6f9fc);
+    min-height: 100vh;
+    padding: 60px 20px 80px;
+    text-align: center;
+    margin: 0 auto;
+    border-radius: 12px;
+}
+
+.text h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #0d1b2a;
+}
+
+.text p.lead {
+    font-size: 1.2rem;
+    color: #4f5d75;
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+
+.btn-outline-primary,
+.btn-primary {
+    padding: 10px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+
+/* Carousel */
+
+#stackUnderflowCarousel {
+    margin-top: 50px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.carousel-img {
+    height: 420px;
+    width: 100%;
+}
+
+.carousel-caption {
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    padding: 10px 20px;
+    bottom: 30px;
+}
+
+.carousel-caption h5 {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+
+/* Features */
+
+.features {
+    margin-top: 70px;
+    padding-bottom: 40px;
+}
+
+.features .col-md-4 {
+    padding: 24px 20px;
+    border-radius: 12px;
+    transition: box-shadow 0.3s ease;
+}
+
+.features .col-md-4:hover {
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.1);
+    background: white;
+}
+
+.features i {
+    color: #007bff;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.features h5 {
+    font-weight: 600;
+    color: #1c1c1c;
+    margin-bottom: 10px;
+}
+
+.features p {
+    color: #5c677d;
+    font-size: 0.95rem;
+    max-width: 280px;
+    margin: auto;
+}

@@ -1,0 +1,87 @@
+<div class="question-page" *ngIf="question">
+
+    <div class="question-block">
+
+        <h2 class="question-title">
+            {{ question.title }}
+        </h2>
+
+        <div class="question-meta">
+            Asked by
+            <a class="username">
+            {{ question.author_email }}
+                </a> • {{ question.created_at | date:'dd MMM yyyy HH:mm' }}
+
+            <button *ngIf="isAuthor" class="btn btn-sm btn-outline-primary" [routerLink]="['/questions/edit', question?.slug]">
+    Edit
+  </button>
+
+        </div>
+
+
+        <div class="question-body">
+            {{ question.description }}
+        </div>
+
+        <!-- ✅ теги -->
+        <div class="meta-info">
+            <div class="question-tags">
+                <a *ngFor="let tag of tagsForQuestion.slice(0, 3)" class="tag" [routerLink]="['/tags', tag.slug]">
+            🏷️ {{ tag.name }}
+        </a>
+                <span *ngIf="tagsForQuestion.length > 3" class="tag tag-more">
+            +{{ tagsForQuestion.length - 3 }}
+        </span>
+            </div>
+        </div>
+
+
+    </div>
+
+
+    <!-- COMMENTS -->
+
+    <div class="answer-block" *ngFor="let comment of comments">
+
+        <div class="comment-author">
+            {{ comment.author_email }}
+        </div>
+
+        <div *ngIf="editingCommentId === comment.id">
+            <textarea [(ngModel)]="editedCommentText" rows="3" maxlength="300"></textarea>
+            <small [class.text-danger]="editedCommentText.length >= 300" class="char-counter">
+        {{ editedCommentText.length }}/300
+    </small>
+            <button (click)="saveEditComment(comment)" class="btn btn-sm btn-primary">Save</button>
+            <button (click)="cancelEditComment()" class="btn btn-sm btn-secondary">Cancel</button>
+        </div>
+
+        <div *ngIf="editingCommentId !== comment.id" class="answer-body">
+            {{ comment.text }}
+            <button *ngIf="usernameFromToken == comment.author" (click)="startEditComment(comment)" class="btn btn-sm btn-outline-primary">
+      Edit
+    </button>
+        </div>
+
+    </div>
+
+    <div class="add-comment" *ngIf="question">
+        <h3>Leave a comment</h3>
+
+        <textarea [(ngModel)]="commentText" [ngModelOptions]="{ standalone: true }" placeholder="Write your comment..." rows="4" [disabled]="!isAuthenticated" maxlength="300">
+    </textarea>
+
+        <small [class.text-danger]="commentText.length >= 300" class="char-counter">
+        {{ commentText.length }}/300
+    </small>
+
+        <br>
+
+        <button (click)="postComment()" class="btn btn-primary" [disabled]="!isAuthenticated">
+        Post Comment
+    </button>
+
+        <p *ngIf="!isAuthenticated" style="color: gray;">
+            You must be logged in to leave a comment
+        </p>
+    </div>

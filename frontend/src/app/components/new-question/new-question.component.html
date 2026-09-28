@@ -1,0 +1,40 @@
+<form>
+    <h2>Question</h2>
+
+    <div class="main_block">
+
+        <div class="block">
+            <h4>Title</h4>
+            <input [(ngModel)]="title" [ngModelOptions]="{ standalone: true }" type="text" maxlength="255" placeholder="How do I use Django models?" />
+            <p *ngIf="title_empty">Write a title!</p>
+        </div>
+
+        <div class="block">
+            <h4>Description</h4>
+            <textarea rows="8" [(ngModel)]="description" [ngModelOptions]="{ standalone: true }" placeholder="Describe your programming question.">
+            </textarea>
+            <p *ngIf="description_empty">Explain the question!</p>
+        </div>
+
+        <!-- TAGS -->
+        <div class="block">
+
+            <h4>Tags</h4>
+            <h6>Write tags like hashtags</h6>
+
+            <div *ngFor="let t of tagInputs; let i = index; trackBy: trackByIndex">
+
+                <input [(ngModel)]="tagInputs[i]" [ngModelOptions]="{ standalone: true }" placeholder="#python" />
+
+            </div>
+
+            <button type="button" (click)="addTag()">➕ Add tag</button>
+
+        </div>
+
+        <p *ngIf="error" role="alert">{{ error }}</p>
+        <button type="button" (click)="newquestion()" [disabled]="saving" class="btn btn-lg btn-primary">
+            {{ saving ? 'Saving...' : 'Ask Question' }}
+        </button>
+    </div>
+</form>
