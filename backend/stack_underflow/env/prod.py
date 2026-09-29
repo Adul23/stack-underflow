@@ -23,3 +23,7 @@ STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
 }
+
+print("DJANGO SETTINGS LOADED: prod.py")
+print("ALLOWED_HOSTS =", ALLOWED_HOSTS)
+print("DEBUG =", DEBUG)
