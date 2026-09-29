@@ -1,48 +1,81 @@
 # STACK UNDERFLOW
 
-Stack Underflow is a simple university Q&A application where users can create
-questions, use tags, search existing questions and leave comments.
+A minimal Q&A platform where users can ask questions, add tags, browse existing
+questions, search by keywords/tags, and leave answers/comments.
 
-- Frontend: Angular
-- Backend: Django REST Framework
-- Database: PostgreSQL in Docker; SQLite for the local demo
-
-## Project structure
+**Frontend:** Angular · **Backend:** Django REST Framework · **Database:** PostgreSQL
 
 ```text
-stack-underflow/
-├── backend/
-│   ├── manage.py
-│   ├── stack_underflow/   # Django settings, URLs, ASGI, WSGI and Celery
-│   └── apps/             # Users, questions, tags and comments
-├── frontend/             # Angular app
-├── docs/
-└── docker-compose.yml
+Angular → Django REST API → PostgreSQL
 ```
 
-## Run locally
+The existing user, question, tag and comment models are reused. Search matches
+title, description and tag names. Suggestions wait 300 ms and show up to five
+matches; a submitted search returns up to 50. This is keyword search without
+embeddings. Analytics stores search, question_view and question_created events,
+including an optional browser session UUID. Chat and profiles are outside the MVP.
 
-Use Python 3.12 and Node.js 18 with npm. From the project root:
+## Structure and database
+
+```text
+backend/                  Django apps and stack_underflow settings
+frontend/                 Existing Angular components and services
+docs/                     TSIS 3, schema, analytics and deployment
+docker-compose.yml        Backend + PostgreSQL; optional legacy services
+```
+
+```mermaid
+erDiagram
+    User ||--o{ Question : creates
+    User ||--o{ Comment : writes
+    Question ||--o{ Comment : has
+    Question ||--o{ QuestionTag : has
+    Tag ||--o{ QuestionTag : labels
+    User o|--o{ AnalyticsEvent : performs
+    Question o|--o{ AnalyticsEvent : records
+```
+
+[Real table names, keys and fields](docs/database_schema.md) ·
+[PostgreSQL DDL](docs/database_schema.sql) · [TSIS 3 deliverables](docs/TSIS3_MVP.md)
+
+## Local setup with PostgreSQL
+
+Use Python 3.12, Node.js 18/npm and Docker Compose. From the repository root:
+
+```bash
+cp backend/.env.example backend/.env
+python3 -c 'import secrets; print(secrets.token_urlsafe(48))'
+```
+
+Put the generated value in STACK_UNDERFLOW_SECRET_KEY and choose a private
+DB_PASSWORD in backend/.env. Existing private .env files should be preserved;
+compare them with the example instead of copying over them.
+
+Main variables: STACK_UNDERFLOW_ENV_ID=local, DB_NAME, DB_USER, DB_PASSWORD,
+DB_HOST=127.0.0.1, DB_PORT=5432, DB_SSLMODE=disable, ALLOWED_HOSTS and
+CORS_ALLOWED_ORIGINS. Keep the example's local host/origin values for development.
+The .env file is ignored by Git.
+
+Start PostgreSQL:
+
+```bash
+docker compose --env-file backend/.env up -d db
+```
+
+Start Django:
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r backend/requirements/base.txt
-cp backend/.env.example backend/.env
-```
-
-Generate a secret with `python -c 'import secrets; print(secrets.token_urlsafe(48))'`
-and put it after `STACK_UNDERFLOW_SECRET_KEY=` in `backend/.env`.
-Keep this file private. Then:
-
-```bash
 cd backend
+python manage.py check
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver
 ```
 
-In another terminal, from the project root:
+In a second terminal, from the repository root:
 
 ```bash
 cd frontend
@@ -50,12 +83,12 @@ npm ci
 npm start
 ```
 
-Open http://localhost:4200. API: http://127.0.0.1:8000/api/docs/.
-Admin: http://127.0.0.1:8000/admin/. Local SQLite needs no Redis or Celery worker.
+Open http://localhost:4200. API docs: http://127.0.0.1:8000/api/docs/.
+Admin: http://127.0.0.1:8000/admin/. There is no email-confirmation or worker
+requirement for registration. Leave DB_HOST empty only if choosing the optional
+SQLite developer fallback; deployed environments always use PostgreSQL.
 
-## Run backend with PostgreSQL
-
-Set a private `DB_PASSWORD` in `backend/.env`. From the project root:
+Alternatively, run the backend in Docker (do not run another server on port 8000):
 
 ```bash
 docker compose --env-file backend/.env up --build -d
@@ -63,8 +96,54 @@ docker compose --env-file backend/.env exec backend python manage.py migrate
 docker compose --env-file backend/.env exec backend python manage.py createsuperuser
 ```
 
-Start Angular with `cd frontend && npm start`. Compose reuses the existing Redis
-and Celery services. Its database volume belongs to this new project.
-Stop any local server using ports 8000 or 6379 before starting Compose.
+Compose sets DB_HOST=db inside the backend container. Start Angular using the
+same npm commands. Existing Redis and Celery services are behind the legacy profile.
 
-See [TSIS 3](docs/TSIS3.md) for the demo flow and SQL queries.
+## Verify the MVP
+
+With the virtual environment activated, from backend/:
+
+```bash
+python manage.py makemigrations --check --dry-run
+python -m pytest tests/MVPTests.py tests/QuestionsTests.py tests/UsersTests.py tests/TagsTests.py tests/CommentsTests.py -q
+```
+
+The database user needs CREATEDB permission for Django's disposable test database
+(the local Compose database user has it). These tests exclude the old Redis chat tests.
+
+From frontend/:
+
+```bash
+npm run build
+npm test -- --watch=false --browsers=ChromeHeadless --include=src/app/components/questions/questions.component.spec.ts --include=src/app/app.component.spec.ts
+```
+
+Chrome must be installed for browser tests. The production build fetches the
+existing Google Font stylesheet and needs internet access.
+
+Demo: register/login → ask a question with python/django tags → browse Questions
+→ type a title word or tag → open a suggestion → add a comment → reload → inspect
+AnalyticsEvent in admin.
+
+Run SQL from the repository root:
+
+```bash
+docker compose --env-file backend/.env exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1' < docs/analytics_queries.sql
+```
+
+[Analytics fields and counting rules](docs/analytics.md) ·
+[SQL queries](docs/analytics_queries.sql)
+
+## Deployment and API URL
+
+All frontend API calls use environment.apiUrl, with an optional public runtime
+value in assets/config.js. For a separate production API host, after building:
+
+```bash
+cd frontend
+STACK_UNDERFLOW_API_URL=https://api.your-domain.example/api npm run configure:api
+```
+
+See [deployment.md](docs/deployment.md) for exact PostgreSQL, DEBUG=False,
+allowed-host, CORS, HTTPS, static-site and backend settings. No public deployment
+has been performed from this workspace; hosting credentials are still needed.

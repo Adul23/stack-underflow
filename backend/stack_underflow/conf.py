@@ -1,7 +1,7 @@
 # Python imports
 import os
 
-from decouple import config
+from decouple import config, Csv
 
 # Project modules
 
@@ -29,10 +29,9 @@ REST_FRAMEWORK = {
     ],
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:4200",
-    "http://127.0.0.1:4200",
-]
+CORS_ALLOWED_ORIGINS = config(
+    "CORS_ALLOWED_ORIGINS", default="http://localhost:4200,http://127.0.0.1:4200", cast=Csv()
+)
 
 CORS_ALLOW_HEADERS = [
     'accept',
@@ -42,6 +41,7 @@ CORS_ALLOW_HEADERS = [
     'origin',
     'x-csrftoken',
     'x-requested-with',
+    'x-session-id',
 ]
 
 CORS_ALLOW_METHODS = [

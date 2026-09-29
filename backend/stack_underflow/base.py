@@ -32,6 +32,7 @@ INSTALLED_APPS = PROJECT_APPS + IMPORTED_APPS
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -78,7 +79,8 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SPECTACULAR_SETTINGS = {
@@ -157,6 +159,10 @@ CACHES = {
         "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}",
     }
 }
+
+# No shared cache is needed for the Q&A MVP. Legacy Redis code remains optional.
+if not config("USE_REDIS", default=False, cast=bool):
+    CACHES = {"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}
 
 # Celery
 _celery_redis_url = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_CELERY_DB}"  # noqa: F405

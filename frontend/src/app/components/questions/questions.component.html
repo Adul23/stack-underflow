@@ -1,17 +1,19 @@
 <div class="questions-container container">
-    <div *ngIf="logged" class="ask-button-wrapper">
+    <div class="ask-button-wrapper">
         <a routerLink="/newquestion" class="btn btn-primary ask-btn">Ask Question</a>
-    </div>
-    <div *ngIf="!logged" class="ask-button-wrapper">
-        <button class="btn btn-outline-primary ask-btn" (click)="alert()">Ask Question</button>
-        <h6 *ngIf="alertF" class="alert-msg">To ask a question, please log in.</h6>
     </div>
 
     <h1>Questions</h1>
     <form (ngSubmit)="search()" class="d-flex gap-2 mb-4">
-        <input class="form-control" name="search" [(ngModel)]="query" placeholder="Search questions..." aria-label="Search questions" />
+        <input class="form-control" name="search" [(ngModel)]="query" (ngModelChange)="onQueryChange($event)" autocomplete="off" placeholder="Search questions..." aria-label="Search questions" />
         <button class="btn btn-primary" type="submit" [disabled]="loading">Search</button>
     </form>
+    <ul *ngIf="suggestions.length" class="list-group mb-4" aria-label="Suggested questions">
+        <li *ngFor="let suggestion of suggestions" class="list-group-item">
+            <a [routerLink]="['/questions', suggestion.slug]">{{ suggestion.title }}</a>
+            <small class="d-block">Tags: <span *ngFor="let tagId of suggestion.tag">#{{ getTagName(tagId) }} </span></small>
+        </li>
+    </ul>
     <p *ngIf="loading">Loading questions...</p>
     <p *ngIf="error" role="alert">{{ error }}</p>
 
@@ -20,8 +22,8 @@
             <a [routerLink]="['/questions', question.slug]" class="question-link">
                 <div class="question-content">
                     <h5>{{ question.title }}</h5>
-                    <p>{{ question.description }}</p>
-                    <small class="date">{{ question.created_at | date: 'HH:mm, dd/MM/yyyy' }}</small>
+                    <p>{{ question.description | slice:0:180 }}</p>
+                    <small class="date">{{ question.created_at | date: 'HH:mm, dd/MM/yyyy' }} · {{ question.author_name }}</small>
                 </div>
             </a>
 

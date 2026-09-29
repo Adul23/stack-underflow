@@ -27,13 +27,7 @@ const routes: Routes = [
   { path: 'tags/:slug', component: TagDetailComponent },
   { path: 'login', component: LoginPageComponent },
   { path: 'signup', component: SignUpComponent },
-  { path: 'users/:id', component: UserPageComponent, },
-  { path: 'users/:username/change_password', component: PasswordChangeComponent, canActivate: [AuthGuardService], },
-  { path: 'users', component: UsersComponent },
-   {path: 'profile', component : ProfileComponent, canActivate : [AuthGuardService]},
-  { path: 'about', component: AboutComponent },
   { path: 'newquestion', component: NewQuestionComponent, canActivate: [AuthGuardService], },
-  { path: 'profile/edit', component: PasswordChangeComponent, canActivate: [AuthGuardService] },
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: '**', component: NotFoundPageComponent },
 ];

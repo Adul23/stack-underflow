@@ -39,6 +39,8 @@ class QuestionDetailSerializer(QuestionBaseSerializer):
 
 
 class QuestionListSerializer(QuestionBaseSerializer):
+    author_name = serializers.CharField(source="author.first_name", read_only=True)
+
     class Meta:
         model = Question
         fields = [
@@ -48,6 +50,7 @@ class QuestionListSerializer(QuestionBaseSerializer):
             "slug",
             "tag",
             "author",
+            "author_name",
             "is_active",
             "created_at",
         ]

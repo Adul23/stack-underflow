@@ -96,5 +96,7 @@ class AnalyticsEvent(models.Model):
     event_name = models.CharField(max_length=100)
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
     question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True, blank=True)
+    session_id = models.CharField(max_length=64, null=True, blank=True)
     search_query = models.CharField(max_length=255, null=True, blank=True)
+    metadata = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

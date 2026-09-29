@@ -3,7 +3,7 @@ from stack_underflow.base import *
 DEBUG = True
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "testserver"]
 
-if os.environ.get("DB_HOST"):
+if config("DB_HOST", default=""):
     DATABASES = {"default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": config("DB_NAME"),
@@ -17,6 +17,3 @@ else:
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     }}
-    CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
-    # Run the existing confirmation email task locally without a worker.
-    CELERY_TASK_ALWAYS_EAGER = True

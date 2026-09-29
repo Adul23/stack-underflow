@@ -13,6 +13,7 @@ export interface Comments {
 }
 export interface Questions {
     author_email?: string;
+    author_name?: string;
     id: number;
     title: string;
     description: string;

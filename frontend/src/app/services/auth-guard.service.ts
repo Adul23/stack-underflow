@@ -21,15 +21,9 @@ export class AuthGuardService {
   ): Observable<boolean> | Promise<boolean> | boolean {
     if (!this.service.isExpiredToken(null)) {
       return true;
-    } else {
-      localStorage.removeItem('access');
-      alert('you must log in to view this page');
-
-      // location.reload();
     }
-
-    this.router.navigate(['/login']).then();
-    return true;
+    localStorage.removeItem('access');
+    this.router.navigate(['/login']);
+    return false;
   }
-
 }

@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable } from '@angular/core';
 import { QuestionDetailResponse, Questions, Comments } from '../models';
 import { Observable, of } from 'rxjs';
@@ -11,13 +12,13 @@ let helper = new JwtHelperService()
   providedIn: 'root',
 })
 export class QuestionsService {
-  private base_url='http://127.0.0.1:8000/api/questions';
+  private base_url = `${environment.apiUrl}/questions`;
 
   constructor(private http: HttpClient, private router: Router) {
   }
 
-  getQuestions(query = ''): Observable<Questions[]> {
-    return this.http.get<Questions[]>(`${this.base_url}/list`, { params: { q: query } });
+  getQuestions(query = '', suggest = false): Observable<Questions[]> {
+    return this.http.get<Questions[]>(`${this.base_url}/list`, { params: { q: query, suggest: suggest ? '1' : '0' } });
   }
 
   getQuestion(slug: string): Observable<QuestionDetailResponse> {
@@ -25,12 +26,12 @@ export class QuestionsService {
   }
 
   deleteQuestion(slug: string): Observable<any> {
-    return this.http.delete(`${this.base_url}/${slug}/delete`);
+    return this.http.delete(`${this.base_url}/${slug}/destroy`);
   }
 
   updateQuestion(slug: string, data: any) {
     return this.http.patch<Questions>(
-      `http://127.0.0.1:8000/api/questions/${slug}/update`,
+      `${this.base_url}/${slug}/update`,
       data
     );
   }
@@ -41,18 +42,18 @@ export class QuestionsService {
 
   editComment(id : number, data : any) {
     return this.http.patch<Comment>(
-      `http://127.0.0.1:8000/api/comments/${id}/update`,
+      `${environment.apiUrl}/comments/${id}/update`,
       data
     )
   }
 
   getQuestionsByAuthor(userId: number): Observable<Questions[]> {
     return this.http.get<Questions[]>(
-      `http://127.0.0.1:8000/api/questions/list_by_author?author=${userId}`
+      `${environment.apiUrl}/questions/list_by_author?author=${userId}`
     );
   }
 
   getCommentsByAuthor(userId: number): Observable<Comments[]> {
-    return this.http.get<Comments[]>(`http://127.0.0.1:8000/api/comments/list_by_author?author=${userId}`);
+    return this.http.get<Comments[]>(`${environment.apiUrl}/comments/list_by_author?author=${userId}`);
   }
 }

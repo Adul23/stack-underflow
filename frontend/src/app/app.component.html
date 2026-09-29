@@ -6,9 +6,6 @@
 
         <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
             <li>
-                <a routerLink="home" class="nav-link px-2 link-secondary">Home</a>
-            </li>
-            <li>
                 <a [routerLink]="['/questions']" class="nav-link px-2 link-dark">Questions</a
         >
       </li>
@@ -16,7 +13,7 @@
         <a [routerLink]="['/tags']" class="nav-link px-2 link-dark">Tags</a>
             </li>
             <li>
-                <a [routerLink]="['/about']" class="nav-link px-2 link-dark">About</a>
+                <a [routerLink]="['/newquestion']" class="nav-link px-2 link-dark">Ask Question</a>
             </li>
         </ul>
 
@@ -26,7 +23,7 @@
           Login
         </button>
                 <button (click)="goToPage('signup')" type="button" class="btn btn-primary">
-          Sign-up
+          Register
         </button>
             </div>
             <div *ngIf="logged">

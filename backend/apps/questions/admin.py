@@ -39,5 +39,5 @@ admin.site.register(Question, QuestionAdmin)
 
 @admin.register(AnalyticsEvent)
 class AnalyticsEventAdmin(ModelAdmin):
-    list_display = ("event_name", "user", "question", "search_query", "created_at")
+    list_display = ("event_name", "user", "question", "search_query", "session_id", "created_at")
     list_filter = ("event_name",)

@@ -13,4 +13,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py collectstatic --noinput && exec daphne -b 0.0.0.0 -p ${PORT:-8000} stack_underflow.asgi:application"]

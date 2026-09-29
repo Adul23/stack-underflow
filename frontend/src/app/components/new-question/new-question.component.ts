@@ -146,7 +146,7 @@ export class NewQuestionComponent implements OnInit {
 
     const decoded = this.jwtHelper.decodeToken(token);
 
-    console.log("Token payload:", decoded);
+
 
     this.usernameFromToken = decoded.user_id;
 

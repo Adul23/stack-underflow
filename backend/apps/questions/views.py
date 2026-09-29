@@ -88,6 +88,13 @@ validation_error_response = inline_serializer(
 logger = getLogger("django")
 
 
+def get_session_id(request):
+    try:
+        return str(uuid.UUID(request.headers.get("X-Session-ID", "")))
+    except (ValueError, AttributeError):
+        return None
+
+
 # @question_schema
 class QuestionViewSet(ViewSet):
     queryset = Question.objects.all()
@@ -109,7 +116,11 @@ class QuestionViewSet(ViewSet):
     @extend_schema(
         tags=["Questions"],
         summary="List all questions",
-        description="Returns a list of all questions. Authentication is not required.",
+        description="List questions or match title, description and tags. Search returns up to 50 matches; suggestions return 5.",
+        parameters=[
+            OpenApiParameter("q", str, description="Search words or tag name"),
+            OpenApiParameter("suggest", str, description="Use 1 for up to five suggestions"),
+        ],
         responses={
             200: OpenApiResponse(
                 response=QuestionListSerializer(many=True),
@@ -147,7 +158,7 @@ class QuestionViewSet(ViewSet):
     def list_questions(self, request: DRFRequest, *args, **kwargs) -> DRFResponse:
         query = request.GET.get("q", "").strip()
         if query:
-            questions = Question.objects.filter(
+            questions = Question.objects.filter(deleted_at__isnull=True).filter(
                 Q(title__icontains=query)
                 | Q(description__icontains=query)
                 | Q(tag__name__icontains=query)
@@ -156,7 +167,10 @@ class QuestionViewSet(ViewSet):
                 event_name="search",
                 user=request.user if request.user.is_authenticated else None,
                 search_query=query[:255],
+                session_id=get_session_id(request),
+                metadata={"source": "suggestion" if request.GET.get("suggest") == "1" else "submit"},
             )
+            questions = questions.order_by("-created_at", "-id")[:5 if request.GET.get("suggest") == "1" else 50]
             return DRFResponse(QuestionListSerializer(questions, many=True).data)
 
         log_extra = self._get_log_context(request)
@@ -165,7 +179,7 @@ class QuestionViewSet(ViewSet):
             logger.info("List of Questions were retrieved from Cache", extra=log_extra)
             return DRFResponse(questions, status=HTTP_200_OK)
 
-        questions = Question.objects.all()
+        questions = Question.objects.filter(deleted_at__isnull=True).order_by("-created_at", "-id")
         logger.info(
             "List of Questions were retrieved from DB and stored in Cache",
             extra=log_extra,
@@ -224,7 +238,7 @@ class QuestionViewSet(ViewSet):
         slug = kwargs.get("slug") or kwargs.get("pk") or slug
         log_extra = self._get_log_context(request)
         try:
-            question = Question.objects.get(slug=slug)
+            question = Question.objects.get(slug=slug, deleted_at__isnull=True)
             logger.info("Retrieval of Questions by SLUG from DB")
             comments = Comments.objects.filter(question=question)
             question_comment_data = {
@@ -233,6 +247,7 @@ class QuestionViewSet(ViewSet):
             }
             AnalyticsEvent.objects.create(
                 event_name="question_view",
+                session_id=get_session_id(request),
                 question=question,
                 user=request.user if request.user.is_authenticated else None,
             )
@@ -281,7 +296,7 @@ class QuestionViewSet(ViewSet):
 
         slug = kwargs.get("slug") or kwargs.get("pk") or slug
         try:
-            question = Question.objects.get(slug=slug)
+            question = Question.objects.get(slug=slug, deleted_at__isnull=True)
         except Question.DoesNotExist:
             logger.warning(
                 "Destruction of question failed: Question does not exist",
@@ -298,6 +313,8 @@ class QuestionViewSet(ViewSet):
                 _("You are not the author of this question"), status=HTTP_403_FORBIDDEN
             )
 
+        for tag in question.tag.all():
+            cache.delete(f"tag_full_detail_{tag.slug}")
         question.delete()
         cache.delete("list_questions")
         cache.delete(f"question_comment_{slug}")
@@ -371,7 +388,8 @@ class QuestionViewSet(ViewSet):
         )
         question.tag.set(data.get("tag", []))
         AnalyticsEvent.objects.create(
-            event_name="question_created", question=question, user=request.user
+            event_name="question_created", question=question, user=request.user,
+            session_id=get_session_id(request)
         )
         logger.info("Question was created", extra=log_extra)
         cache.delete("list_questions")
@@ -435,7 +453,7 @@ class QuestionViewSet(ViewSet):
         log_extra = self._get_log_context(request)
         slug = kwargs.get("slug") or kwargs.get("pk") or slug
         try:
-            question = Question.objects.get(slug=slug)
+            question = Question.objects.get(slug=slug, deleted_at__isnull=True)
         except Question.DoesNotExist:
             logger.warning(
                 "Update of question failed: The question does not exist",
@@ -520,7 +538,7 @@ class QuestionViewSet(ViewSet):
         log_extra = self._get_log_context(request)
         slug = kwargs.get("slug") or kwargs.get("pk") or slug
         try:
-            question = Question.objects.get(slug=slug)
+            question = Question.objects.get(slug=slug, deleted_at__isnull=True)
         except Question.DoesNotExist:
             logger.warning(
                 "Creation of comment: Question does not exist", extra=log_extra

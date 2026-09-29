@@ -1,11 +1,11 @@
 <div class="home-container">
   <div class="text">
     <h1>STACK UNDERFLOW</h1>
-    <p class="lead">Ask programming questions, share answers and find topics by tag.</p>
+    <p class="lead">Ask programming questions, discover existing discussions, and find answers.</p>
     <div class="d-flex justify-content-center gap-3 mt-4">
-      <a routerLink="/questions" class="btn btn-outline-primary btn-lg">Questions</a>
+      <a routerLink="/questions" class="btn btn-outline-primary btn-lg">Browse Questions</a>
       <a *ngIf="!logged" routerLink="/signup" class="btn btn-primary btn-lg">Register</a>
-      <a *ngIf="logged" routerLink="/newquestion" class="btn btn-primary btn-lg">Ask Question</a>
+      <a routerLink="/newquestion" class="btn btn-primary btn-lg">Ask Question</a>
     </div>
   </div>
 </div>

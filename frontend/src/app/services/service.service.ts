@@ -1,5 +1,6 @@
+import { environment } from '../../environments/environment';
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { JwtHelperService } from "@auth0/angular-jwt";
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthToken } from '../models';
@@ -13,8 +14,7 @@ const helper = new JwtHelperService();
 })
 
 export class ServiceService {
-  //private apiURL = 'http://localhost:5000';
-  private base_url='http://127.0.0.1:8000/api/';
+  private base_url = `${environment.apiUrl}/`;
 
   constructor(private http: HttpClient, private router: Router) {
   }
@@ -42,12 +42,13 @@ export class ServiceService {
     return this.http.post<Comments>(`${this.base_url}questions/${slug}/create_comment`, data)
   }
 
+  // Legacy screens are not routed in the MVP; their backend APIs never existed.
   getUsers(): Observable<Users[]> {
-    return this.http.get<Users[]>(`${this.base_url}v1/users/users`);
+    return throwError(() => new Error('User directory is outside the MVP.'));
   }
 
-  getUser(id : number): Observable<Users> {
-    return this.http.get<Users>(`${this.base_url}users/${id}`);
+  getUser(id: number): Observable<Users> {
+    return throwError(() => new Error('User profiles are outside the MVP.'));
   }
 
   login(email: string, password: string) {
@@ -61,15 +62,12 @@ export class ServiceService {
     return this.http.post<Users>(`${this.base_url}users/register`, data)
   }
 
-  changePassword(data: any):Observable<null>{
-    const token = localStorage.getItem('access');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    return this.http.post<any>(`${this.base_url}me/change_password/`,data, { headers });
+  changePassword(data: any): Observable<null> {
+    return throwError(() => new Error('Password management is outside the MVP.'));
   }
 
   myProfile(): Observable<Users> {
-    return this.http.get<Users>(`http://localhost:8000/api/v1/users/me/`);
+    return throwError(() => new Error('User profiles are outside the MVP.'));
   }
 
   isExpiredToken(token: string | null): boolean {
