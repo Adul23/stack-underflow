@@ -1,0 +1,42 @@
+[
+  {
+    "query": "python",
+    "suggest": false,
+    "count": 2,
+    "titles": [
+      "PostgreSQL unique constraint",
+      "Django serializers explained"
+    ]
+  },
+  {
+    "query": "DJANGO",
+    "suggest": false,
+    "count": 1,
+    "titles": [
+      "Django serializers explained"
+    ]
+  },
+  {
+    "query": "parameterized queries",
+    "suggest": false,
+    "count": 1,
+    "titles": [
+      "PostgreSQL unique constraint"
+    ]
+  },
+  {
+    "query": "avoid duplicate rows",
+    "suggest": false,
+    "count": 0,
+    "titles": []
+  },
+  {
+    "query": "python",
+    "suggest": true,
+    "count": 2,
+    "titles": [
+      "PostgreSQL unique constraint",
+      "Django serializers explained"
+    ]
+  }
+]

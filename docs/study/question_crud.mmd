@@ -1,0 +1,21 @@
+flowchart LR
+    C1["CREATE<br/>Форма: title, description, теги<br/>POST /api/questions/create"] --> C2["JWT и проверка полей<br/>Нет входа: 401<br/>Ошибка данных: 400"]
+    C2 -->|Успех| C3["INSERT вопрос + связи тегов<br/>Автор из request.user<br/>Событие question_created"]
+    C3 --> C4["201 Created<br/>Открыть карточку"]
+
+    R1["READ<br/>Список, поиск или карточка<br/>GET list или slug/retrieve"] --> R2["Без входа<br/>Фильтр deleted_at IS NULL<br/>Нет карточки: 404"]
+    R2 -->|Успех| R3["SELECT вопросы / комментарии<br/>Поиск: событие search<br/>Карточка: question_view"]
+    R3 --> R4["200 OK<br/>Показать данные<br/>Список может быть пустым"]
+
+    U1["UPDATE<br/>Edit на карточке автора<br/>PATCH slug/update"] --> U2["JWT, наличие, авторство, поля<br/>Ошибки: 401 / 404 / 403 / 400"]
+    U2 -->|Успех| U3["UPDATE полей и тегов<br/>При передаче title<br/>пересчитывается slug"]
+    U3 --> U4["200 OK<br/>Вернуться к списку"]
+
+    D1["DELETE через API<br/>DELETE slug/destroy<br/>Кнопки в текущем UI нет"] --> D2["JWT, наличие и авторство<br/>Ошибки: 401 / 404 / 403"]
+    D2 -->|Успех| D3["UPDATE deleted_at = now<br/>Строка, комментарии<br/>и связи тегов сохраняются"]
+    D3 --> D4["204 No Content<br/>Вопрос скрыт из списка,<br/>поиска и карточки"]
+
+    classDef missing fill:#fff1dc,stroke:#ad6b00,color:#483009;
+    classDef response fill:#e9f6ed,stroke:#39724d,color:#183720;
+    class D1 missing;
+    class C4,R4,U4,D4 response;

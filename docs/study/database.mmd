@@ -1,0 +1,69 @@
+erDiagram
+    users_customuser ||--o{ questions_question : creates
+    users_customuser ||--o{ comments_comments : writes
+    questions_question ||--o{ comments_comments : contains
+    questions_question ||--o{ questions_question_tag : has
+    tags_tag ||--o{ questions_question_tag : labels
+    users_customuser o|--o{ questions_analyticsevent : performs
+    questions_question o|--o{ questions_analyticsevent : references
+
+    users_customuser {
+        bigint id PK
+        varchar email UK
+        varchar password "hash"
+        varchar first_name
+        varchar last_name
+        boolean is_active
+        boolean is_staff
+        boolean is_superuser
+        timestamptz last_login "nullable"
+        varchar avatar "nullable"
+        varchar preffered_language
+        varchar timezone
+        timestamptz created_at "nullable"
+        timestamptz updated_at "nullable"
+        timestamptz deleted_at "nullable"
+    }
+    questions_question {
+        bigint id PK
+        bigint author_id FK
+        varchar title
+        text description "nullable in DB"
+        varchar slug UK
+        boolean is_active
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz deleted_at "nullable - soft delete"
+    }
+    tags_tag {
+        bigint id PK
+        varchar name
+        varchar slug UK
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz deleted_at "nullable"
+    }
+    questions_question_tag {
+        bigint id PK
+        bigint question_id FK "unique pair with tag_id"
+        bigint tag_id FK "unique pair with question_id"
+    }
+    comments_comments {
+        bigint id PK
+        bigint question_id FK
+        bigint author_id FK
+        text text "API max 300 characters"
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz deleted_at "nullable"
+    }
+    questions_analyticsevent {
+        bigint id PK
+        varchar event_name
+        bigint user_id FK "nullable"
+        bigint question_id FK "nullable"
+        varchar session_id "nullable"
+        varchar search_query "nullable"
+        jsonb metadata "nullable"
+        timestamptz created_at
+    }

@@ -1,0 +1,21 @@
+name: stack-underflow-study
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: stack_underflow_study
+      POSTGRES_USER: study
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Run run-demo.ps1 first}
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - study_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U study -d stack_underflow_study"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  study_data:

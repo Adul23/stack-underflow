@@ -1,0 +1,6 @@
+System check identified no issues (0 silenced).
+Operations to perform:
+  Apply all migrations: admin, auth, comments, contenttypes, questions, sessions, tags, users
+Running migrations:
+  No migrations to apply.
+No changes detected
