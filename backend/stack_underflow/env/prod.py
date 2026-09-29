@@ -5,7 +5,7 @@ from stack_underflow.base import *
 DEBUG = False
 # ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 ALLOWED_HOSTS = [
-    "stack-underflow-kdd9.onrender.com",
+    "stack-underflow-backend-yks8.onrender.com",
 ]
 CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", cast=Csv())
 CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", default="", cast=Csv())
