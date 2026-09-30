@@ -1,0 +1,13 @@
+........................................................................ [ 87%]
+..........                                                               [100%]
+============================== warnings summary ===============================
+tests/MVPTests.py: 16 warnings
+tests/QuestionsTests.py: 25 warnings
+tests/UsersTests.py: 9 warnings
+tests/TagsTests.py: 12 warnings
+tests/CommentsTests.py: 20 warnings
+  C:\Users\User\Desktop\projmng\stack-underflow\.venv\Lib\site-packages\django\core\handlers\base.py:61: UserWarning: No directory at: C:\Users\User\Desktop\projmng\stack-underflow\backend\staticfiles\
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+82 passed, 82 warnings in 15.08s

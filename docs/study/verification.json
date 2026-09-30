@@ -1,0 +1,899 @@
+{
+  "executed_at_utc": "2026-09-29T20:53:57.542904+00:00",
+  "python": "3.13.12",
+  "django": "5.2.11",
+  "database_vendor": "postgresql",
+  "api_transport": "Django REST Framework APIClient (in process, real PostgreSQL)",
+  "api_checks": [
+    {
+      "check": "Registration",
+      "status": 201,
+      "expected": 201,
+      "passed": true
+    },
+    {
+      "check": "JWT login",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "Anonymous create denied",
+      "status": 401,
+      "expected": 401,
+      "passed": true
+    },
+    {
+      "check": "Empty description rejected",
+      "status": 400,
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "check": "Create question",
+      "status": 201,
+      "expected": 201,
+      "passed": true
+    },
+    {
+      "check": "Read detail",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "Other author update denied",
+      "status": 403,
+      "expected": 403,
+      "passed": true
+    },
+    {
+      "check": "Other author delete denied",
+      "status": 403,
+      "expected": 403,
+      "passed": true
+    },
+    {
+      "check": "Owner update",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "Owner updates title",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "Old slug becomes unavailable",
+      "status": 404,
+      "expected": 404,
+      "passed": true
+    },
+    {
+      "check": "New slug works",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "Owner soft delete",
+      "status": 204,
+      "expected": 204,
+      "passed": true
+    },
+    {
+      "check": "Deleted detail hidden",
+      "status": 404,
+      "expected": 404,
+      "passed": true
+    },
+    {
+      "check": "Deleted question absent from search",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    }
+  ],
+  "queries": [
+    {
+      "id": "Q01",
+      "title": "Database and version",
+      "sql": "-- PostgreSQL: all statements below only read data.\n-- Q01 | Database and version\nSELECT current_database() AS database_name, current_user AS database_user,\n       current_setting('server_version') AS postgres_version;",
+      "columns": [
+        "database_name",
+        "database_user",
+        "postgres_version"
+      ],
+      "rows": [
+        [
+          "stack_underflow_study",
+          "study",
+          "16.15 (Debian 16.15-1.pgdg13+2)"
+        ]
+      ]
+    },
+    {
+      "id": "Q02",
+      "title": "Application tables",
+      "sql": "-- Q02 | Application tables\nSELECT table_name\nFROM information_schema.tables\nWHERE table_schema = 'public' AND table_type = 'BASE TABLE'\n  AND table_name IN ('users_customuser', 'questions_question', 'tags_tag',\n                    'questions_question_tag', 'comments_comments', 'questions_analyticsevent')\nORDER BY table_name;",
+      "columns": [
+        "table_name"
+      ],
+      "rows": [
+        [
+          "comments_comments"
+        ],
+        [
+          "questions_analyticsevent"
+        ],
+        [
+          "questions_question"
+        ],
+        [
+          "questions_question_tag"
+        ],
+        [
+          "tags_tag"
+        ],
+        [
+          "users_customuser"
+        ]
+      ]
+    },
+    {
+      "id": "Q03",
+      "title": "Columns, types and nullability",
+      "sql": "-- Q03 | Columns, types and nullability\nSELECT table_name, column_name, data_type, is_nullable\nFROM information_schema.columns\nWHERE table_schema = 'public'\n  AND table_name IN ('users_customuser', 'questions_question', 'tags_tag',\n                    'questions_question_tag', 'comments_comments', 'questions_analyticsevent')\nORDER BY table_name, ordinal_position;",
+      "columns": [
+        "table_name",
+        "column_name",
+        "data_type",
+        "is_nullable"
+      ],
+      "rows": [
+        [
+          "comments_comments",
+          "id",
+          "bigint",
+          "NO"
+        ],
+        [
+          "comments_comments",
+          "created_at",
+          "timestamp with time zone",
+          "NO"
+        ],
+        [
+          "comments_comments",
+          "updated_at",
+          "timestamp with time zone",
+          "NO"
+        ],
+        [
+          "comments_comments",
+          "deleted_at",
+          "timestamp with time zone",
+          "YES"
+        ],
+        [
+          "comments_comments",
+          "text",
+          "text",
+          "NO"
+        ],
+        [
+          "comments_comments",
+          "author_id",
+          "bigint",
+          "NO"
+        ],
+        [
+          "comments_comments",
+          "question_id",
+          "bigint",
+          "NO"
+        ],
+        [
+          "questions_analyticsevent",
+          "id",
+          "bigint",
+          "NO"
+        ],
+        [
+          "questions_analyticsevent",
+          "event_name",
+          "character varying",
+          "NO"
+        ],
+        [
+          "questions_analyticsevent",
+          "search_query",
+          "character varying",
+          "YES"
+        ],
+        [
+          "questions_analyticsevent",
+          "created_at",
+          "timestamp with time zone",
+          "NO"
+        ],
+        [
+          "questions_analyticsevent",
+          "question_id",
+          "bigint",
+          "YES"
+        ],
+        [
+          "questions_analyticsevent",
+          "user_id",
+          "bigint",
+          "YES"
+        ],
+        [
+          "questions_analyticsevent",
+          "metadata",
+          "jsonb",
+          "YES"
+        ],
+        [
+          "questions_analyticsevent",
+          "session_id",
+          "character varying",
+          "YES"
+        ],
+        [
+          "questions_question",
+          "id",
+          "bigint",
+          "NO"
+        ],
+        [
+          "questions_question",
+          "created_at",
+          "timestamp with time zone",
+          "NO"
+        ],
+        [
+          "questions_question",
+          "updated_at",
+          "timestamp with time zone",
+          "NO"
+        ],
+        [
+          "questions_question",
+          "deleted_at",
+          "timestamp with time zone",
+          "YES"
+        ],
+        [
+          "questions_question",
+          "title",
+          "character varying",
+          "NO"
+        ],
+        [
+          "questions_question",
+          "description",
+          "text",
+          "YES"
+        ],
+        [
+          "questions_question",
+          "slug",
+          "character varying",
+          "NO"
+        ],
+        [
+          "questions_question",
+          "is_active",
+          "boolean",
+          "NO"
+        ],
+        [
+          "questions_question",
+          "author_id",
+          "bigint",
+          "NO"
+        ],
+        [
+          "questions_question_tag",
+          "id",
+          "bigint",
+          "NO"
+        ],
+        [
+          "questions_question_tag",
+          "question_id",
+          "bigint",
+          "NO"
+        ],
+        [
+          "questions_question_tag",
+          "tag_id",
+          "bigint",
+          "NO"
+        ],
+        [
+          "tags_tag",
+          "id",
+          "bigint",
+          "NO"
+        ],
+        [
+          "tags_tag",
+          "created_at",
+          "timestamp with time zone",
+          "NO"
+        ],
+        [
+          "tags_tag",
+          "updated_at",
+          "timestamp with time zone",
+          "NO"
+        ],
+        [
+          "tags_tag",
+          "deleted_at",
+          "timestamp with time zone",
+          "YES"
+        ],
+        [
+          "tags_tag",
+          "name",
+          "character varying",
+          "NO"
+        ],
+        [
+          "tags_tag",
+          "slug",
+          "character varying",
+          "NO"
+        ],
+        [
+          "users_customuser",
+          "id",
+          "bigint",
+          "NO"
+        ],
+        [
+          "users_customuser",
+          "last_login",
+          "timestamp with time zone",
+          "YES"
+        ],
+        [
+          "users_customuser",
+          "is_superuser",
+          "boolean",
+          "NO"
+        ],
+        [
+          "users_customuser",
+          "created_at",
+          "timestamp with time zone",
+          "YES"
+        ],
+        [
+          "users_customuser",
+          "updated_at",
+          "timestamp with time zone",
+          "YES"
+        ],
+        [
+          "users_customuser",
+          "deleted_at",
+          "timestamp with time zone",
+          "YES"
+        ],
+        [
+          "users_customuser",
+          "email",
+          "character varying",
+          "NO"
+        ],
+        [
+          "users_customuser",
+          "first_name",
+          "character varying",
+          "NO"
+        ],
+        [
+          "users_customuser",
+          "last_name",
+          "character varying",
+          "NO"
+        ],
+        [
+          "users_customuser",
+          "password",
+          "character varying",
+          "NO"
+        ],
+        [
+          "users_customuser",
+          "is_active",
+          "boolean",
+          "NO"
+        ],
+        [
+          "users_customuser",
+          "is_staff",
+          "boolean",
+          "NO"
+        ],
+        [
+          "users_customuser",
+          "avatar",
+          "character varying",
+          "YES"
+        ],
+        [
+          "users_customuser",
+          "preffered_language",
+          "character varying",
+          "NO"
+        ],
+        [
+          "users_customuser",
+          "timezone",
+          "character varying",
+          "NO"
+        ]
+      ]
+    },
+    {
+      "id": "Q04",
+      "title": "Primary keys, foreign keys and unique constraints",
+      "sql": "-- Q04 | Primary keys, foreign keys and unique constraints\nSELECT c.conrelid::regclass::text AS table_name, c.contype AS constraint_type,\n       pg_get_constraintdef(c.oid) AS definition\nFROM pg_constraint c\nJOIN pg_class r ON r.oid = c.conrelid\nJOIN pg_namespace n ON n.oid = r.relnamespace\nWHERE n.nspname = 'public' AND c.contype IN ('p', 'f', 'u')\n  AND r.relname IN ('users_customuser', 'questions_question', 'tags_tag',\n                   'questions_question_tag', 'comments_comments', 'questions_analyticsevent')\nORDER BY table_name, constraint_type, definition;",
+      "columns": [
+        "table_name",
+        "constraint_type",
+        "definition"
+      ],
+      "rows": [
+        [
+          "comments_comments",
+          "f",
+          "FOREIGN KEY (author_id) REFERENCES users_customuser(id) DEFERRABLE INITIALLY DEFERRED"
+        ],
+        [
+          "comments_comments",
+          "f",
+          "FOREIGN KEY (question_id) REFERENCES questions_question(id) DEFERRABLE INITIALLY DEFERRED"
+        ],
+        [
+          "comments_comments",
+          "p",
+          "PRIMARY KEY (id)"
+        ],
+        [
+          "questions_analyticsevent",
+          "f",
+          "FOREIGN KEY (question_id) REFERENCES questions_question(id) DEFERRABLE INITIALLY DEFERRED"
+        ],
+        [
+          "questions_analyticsevent",
+          "f",
+          "FOREIGN KEY (user_id) REFERENCES users_customuser(id) DEFERRABLE INITIALLY DEFERRED"
+        ],
+        [
+          "questions_analyticsevent",
+          "p",
+          "PRIMARY KEY (id)"
+        ],
+        [
+          "questions_question",
+          "f",
+          "FOREIGN KEY (author_id) REFERENCES users_customuser(id) DEFERRABLE INITIALLY DEFERRED"
+        ],
+        [
+          "questions_question",
+          "p",
+          "PRIMARY KEY (id)"
+        ],
+        [
+          "questions_question",
+          "u",
+          "UNIQUE (slug)"
+        ],
+        [
+          "questions_question_tag",
+          "f",
+          "FOREIGN KEY (question_id) REFERENCES questions_question(id) DEFERRABLE INITIALLY DEFERRED"
+        ],
+        [
+          "questions_question_tag",
+          "f",
+          "FOREIGN KEY (tag_id) REFERENCES tags_tag(id) DEFERRABLE INITIALLY DEFERRED"
+        ],
+        [
+          "questions_question_tag",
+          "p",
+          "PRIMARY KEY (id)"
+        ],
+        [
+          "questions_question_tag",
+          "u",
+          "UNIQUE (question_id, tag_id)"
+        ],
+        [
+          "tags_tag",
+          "p",
+          "PRIMARY KEY (id)"
+        ],
+        [
+          "tags_tag",
+          "u",
+          "UNIQUE (slug)"
+        ],
+        [
+          "users_customuser",
+          "p",
+          "PRIMARY KEY (id)"
+        ],
+        [
+          "users_customuser",
+          "u",
+          "UNIQUE (email)"
+        ]
+      ]
+    },
+    {
+      "id": "Q05",
+      "title": "Row counts including soft-deleted rows",
+      "sql": "-- Q05 | Row counts including soft-deleted rows\nSELECT 'users_customuser' AS table_name, COUNT(*) AS rows FROM users_customuser\nUNION ALL SELECT 'questions_question', COUNT(*) FROM questions_question\nUNION ALL SELECT 'tags_tag', COUNT(*) FROM tags_tag\nUNION ALL SELECT 'questions_question_tag', COUNT(*) FROM questions_question_tag\nUNION ALL SELECT 'comments_comments', COUNT(*) FROM comments_comments\nUNION ALL SELECT 'questions_analyticsevent', COUNT(*) FROM questions_analyticsevent\nORDER BY table_name;",
+      "columns": [
+        "table_name",
+        "rows"
+      ],
+      "rows": [
+        [
+          "comments_comments",
+          3
+        ],
+        [
+          "questions_analyticsevent",
+          12
+        ],
+        [
+          "questions_question",
+          4
+        ],
+        [
+          "questions_question_tag",
+          6
+        ],
+        [
+          "tags_tag",
+          4
+        ],
+        [
+          "users_customuser",
+          2
+        ]
+      ]
+    },
+    {
+      "id": "Q06",
+      "title": "Demo accounts without password hashes",
+      "sql": "-- Q06 | Demo accounts without password hashes\nSELECT id, email, first_name, last_name, is_active\nFROM users_customuser WHERE deleted_at IS NULL ORDER BY id;",
+      "columns": [
+        "id",
+        "email",
+        "first_name",
+        "last_name",
+        "is_active"
+      ],
+      "rows": [
+        [
+          1,
+          "alice@example.com",
+          "Alice",
+          "Student",
+          true
+        ],
+        [
+          2,
+          "bob@example.com",
+          "Bob",
+          "Student",
+          true
+        ]
+      ]
+    },
+    {
+      "id": "Q07",
+      "title": "Visible questions, authors and tags",
+      "sql": "-- Q07 | Visible questions, authors and tags\nSELECT q.id, q.title, u.email AS author,\n       COALESCE(string_agg(t.name, ', ' ORDER BY t.name), '(no tags)') AS tags\nFROM questions_question q\nJOIN users_customuser u ON u.id = q.author_id\nLEFT JOIN questions_question_tag qt ON qt.question_id = q.id\nLEFT JOIN tags_tag t ON t.id = qt.tag_id\nWHERE q.deleted_at IS NULL\nGROUP BY q.id, q.title, u.email ORDER BY q.id;",
+      "columns": [
+        "id",
+        "title",
+        "author",
+        "tags"
+      ],
+      "rows": [
+        [
+          1,
+          "Django serializers explained",
+          "alice@example.com",
+          "django, python"
+        ],
+        [
+          2,
+          "PostgreSQL unique constraint",
+          "alice@example.com",
+          "postgresql, python"
+        ],
+        [
+          3,
+          "Angular component communication",
+          "alice@example.com",
+          "angular"
+        ]
+      ]
+    },
+    {
+      "id": "Q08",
+      "title": "Comments with their question and author",
+      "sql": "-- Q08 | Comments with their question and author\nSELECT c.id, q.title AS question, u.email AS author, c.text\nFROM comments_comments c\nJOIN questions_question q ON q.id = c.question_id\nJOIN users_customuser u ON u.id = c.author_id\nWHERE c.deleted_at IS NULL AND q.deleted_at IS NULL ORDER BY c.id;",
+      "columns": [
+        "id",
+        "question",
+        "author",
+        "text"
+      ],
+      "rows": [
+        [
+          1,
+          "Django serializers explained",
+          "bob@example.com",
+          "Use a ModelSerializer."
+        ],
+        [
+          2,
+          "Django serializers explained",
+          "bob@example.com",
+          "Call is_valid before save."
+        ],
+        [
+          3,
+          "PostgreSQL unique constraint",
+          "bob@example.com",
+          "Add a UNIQUE constraint to the column."
+        ]
+      ]
+    },
+    {
+      "id": "Q09",
+      "title": "Number of comments per visible question, including zero",
+      "sql": "-- Q09 | Number of comments per visible question, including zero\nSELECT q.id, q.title, COUNT(c.id) AS comment_count\nFROM questions_question q\nLEFT JOIN comments_comments c ON c.question_id = q.id AND c.deleted_at IS NULL\nWHERE q.deleted_at IS NULL\nGROUP BY q.id, q.title ORDER BY q.id;",
+      "columns": [
+        "id",
+        "title",
+        "comment_count"
+      ],
+      "rows": [
+        [
+          1,
+          "Django serializers explained",
+          2
+        ],
+        [
+          2,
+          "PostgreSQL unique constraint",
+          1
+        ],
+        [
+          3,
+          "Angular component communication",
+          0
+        ]
+      ]
+    },
+    {
+      "id": "Q10",
+      "title": "Tag usage on visible questions",
+      "sql": "-- Q10 | Tag usage on visible questions\nSELECT t.name, COUNT(q.id) AS question_count\nFROM tags_tag t\nLEFT JOIN questions_question_tag qt ON qt.tag_id = t.id\nLEFT JOIN questions_question q ON q.id = qt.question_id AND q.deleted_at IS NULL\nWHERE t.deleted_at IS NULL\nGROUP BY t.id, t.name ORDER BY question_count DESC, t.name;",
+      "columns": [
+        "name",
+        "question_count"
+      ],
+      "rows": [
+        [
+          "python",
+          2
+        ],
+        [
+          "angular",
+          1
+        ],
+        [
+          "django",
+          1
+        ],
+        [
+          "postgresql",
+          1
+        ]
+      ]
+    },
+    {
+      "id": "Q11",
+      "title": "Soft delete preserves the database row and its links",
+      "sql": "-- Q11 | Soft delete preserves the database row and its links\nSELECT q.id, q.title, q.deleted_at IS NOT NULL AS is_deleted,\n       (SELECT COUNT(*) FROM questions_question_tag qt WHERE qt.question_id = q.id) AS tag_links,\n       (SELECT COUNT(*) FROM comments_comments c WHERE c.question_id = q.id) AS comments\nFROM questions_question q ORDER BY q.id;",
+      "columns": [
+        "id",
+        "title",
+        "is_deleted",
+        "tag_links",
+        "comments"
+      ],
+      "rows": [
+        [
+          1,
+          "Django serializers explained",
+          false,
+          2,
+          2
+        ],
+        [
+          2,
+          "PostgreSQL unique constraint",
+          false,
+          2,
+          1
+        ],
+        [
+          3,
+          "Angular component communication",
+          false,
+          1,
+          0
+        ],
+        [
+          4,
+          "Python temporary question",
+          true,
+          1,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "Q12",
+      "title": "Current keyword search for python, mirroring icontains",
+      "sql": "-- Q12 | Current keyword search for python, mirroring icontains\nSELECT DISTINCT q.id, q.title, q.created_at\nFROM questions_question q\nLEFT JOIN questions_question_tag qt ON qt.question_id = q.id\nLEFT JOIN tags_tag t ON t.id = qt.tag_id\nWHERE q.deleted_at IS NULL AND (\n    UPPER(q.title) LIKE UPPER('%python%')\n    OR UPPER(q.description) LIKE UPPER('%python%')\n    OR UPPER(t.name) LIKE UPPER('%python%')\n)\nORDER BY q.created_at DESC, q.id DESC LIMIT 50;",
+      "columns": [
+        "id",
+        "title",
+        "created_at"
+      ],
+      "rows": [
+        [
+          2,
+          "PostgreSQL unique constraint",
+          "2026-09-29 20:51:21.849026+00:00"
+        ],
+        [
+          1,
+          "Django serializers explained",
+          "2026-09-29 20:51:21.831532+00:00"
+        ]
+      ]
+    },
+    {
+      "id": "Q13",
+      "title": "Analytics counts: suggestion requests and submitted searches differ",
+      "sql": "-- Q13 | Analytics counts: suggestion requests and submitted searches differ\nSELECT event_name, COALESCE(metadata->>'source', '-') AS source, COUNT(*) AS events\nFROM questions_analyticsevent\nGROUP BY event_name, metadata->>'source' ORDER BY event_name, source;",
+      "columns": [
+        "event_name",
+        "source",
+        "events"
+      ],
+      "rows": [
+        [
+          "question_created",
+          "-",
+          4
+        ],
+        [
+          "question_view",
+          "-",
+          3
+        ],
+        [
+          "search",
+          "submit",
+          4
+        ],
+        [
+          "search",
+          "suggestion",
+          1
+        ]
+      ]
+    },
+    {
+      "id": "Q14",
+      "title": "Recorded search terms and their request sources",
+      "sql": "-- Q14 | Recorded search terms and their request sources\nSELECT search_query, metadata->>'source' AS source, COUNT(*) AS requests\nFROM questions_analyticsevent WHERE event_name = 'search'\nGROUP BY search_query, metadata->>'source' ORDER BY search_query, source;",
+      "columns": [
+        "search_query",
+        "source",
+        "requests"
+      ],
+      "rows": [
+        [
+          "avoid duplicate rows",
+          "submit",
+          1
+        ],
+        [
+          "DJANGO",
+          "submit",
+          1
+        ],
+        [
+          "parameterized queries",
+          "submit",
+          1
+        ],
+        [
+          "python",
+          "submit",
+          1
+        ],
+        [
+          "python",
+          "suggestion",
+          1
+        ]
+      ]
+    },
+    {
+      "id": "Q15",
+      "title": "Orphan references and duplicate question/tag pairs (all should be zero)",
+      "sql": "-- Q15 | Orphan references and duplicate question/tag pairs (all should be zero)\nSELECT 'question_without_author' AS check_name, COUNT(*) AS problems\nFROM questions_question q LEFT JOIN users_customuser u ON u.id = q.author_id WHERE u.id IS NULL\nUNION ALL\nSELECT 'comment_without_question', COUNT(*)\nFROM comments_comments c LEFT JOIN questions_question q ON q.id = c.question_id WHERE q.id IS NULL\nUNION ALL\nSELECT 'comment_without_author', COUNT(*)\nFROM comments_comments c LEFT JOIN users_customuser u ON u.id = c.author_id WHERE u.id IS NULL\nUNION ALL\nSELECT 'tag_link_without_question', COUNT(*)\nFROM questions_question_tag qt LEFT JOIN questions_question q ON q.id = qt.question_id WHERE q.id IS NULL\nUNION ALL\nSELECT 'tag_link_without_tag', COUNT(*)\nFROM questions_question_tag qt LEFT JOIN tags_tag t ON t.id = qt.tag_id WHERE t.id IS NULL\nUNION ALL\nSELECT 'event_without_user', COUNT(*)\nFROM questions_analyticsevent e LEFT JOIN users_customuser u ON u.id = e.user_id WHERE e.user_id IS NOT NULL AND u.id IS NULL\nUNION ALL\nSELECT 'event_without_question', COUNT(*)\nFROM questions_analyticsevent e LEFT JOIN questions_question q ON q.id = e.question_id WHERE e.question_id IS NOT NULL AND q.id IS NULL\nUNION ALL\nSELECT 'duplicate_question_tag_pair', COUNT(*) FROM (\n    SELECT question_id, tag_id FROM questions_question_tag\n    GROUP BY question_id, tag_id HAVING COUNT(*) > 1\n) duplicates ORDER BY check_name;",
+      "columns": [
+        "check_name",
+        "problems"
+      ],
+      "rows": [
+        [
+          "comment_without_author",
+          0
+        ],
+        [
+          "comment_without_question",
+          0
+        ],
+        [
+          "duplicate_question_tag_pair",
+          0
+        ],
+        [
+          "event_without_question",
+          0
+        ],
+        [
+          "event_without_user",
+          0
+        ],
+        [
+          "question_without_author",
+          0
+        ],
+        [
+          "tag_link_without_question",
+          0
+        ],
+        [
+          "tag_link_without_tag",
+          0
+        ]
+      ]
+    }
+  ]
+}

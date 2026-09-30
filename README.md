@@ -5,6 +5,8 @@ questions, search by keywords/tags, and leave answers/comments.
 
 **Frontend:** Angular · **Backend:** Django REST Framework · **Database:** PostgreSQL
 
+[Учебный отчёт на русском: MVP, диаграммы БД/CRUD, выполненные SQL и текущий поиск](docs/study/REPORT_RU.md)
+
 ```text
 Angular → Django REST API → PostgreSQL
 ```

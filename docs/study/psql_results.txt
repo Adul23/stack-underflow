@@ -1,0 +1,175 @@
+     database_name     | database_user |        postgres_version
+-----------------------+---------------+---------------------------------
+ stack_underflow_study | study         | 16.15 (Debian 16.15-1.pgdg13+2)
+(1 row)
+
+        table_name
+--------------------------
+ comments_comments
+ questions_analyticsevent
+ questions_question
+ questions_question_tag
+ tags_tag
+ users_customuser
+(6 rows)
+
+        table_name        |    column_name     |        data_type         | is_nullable
+--------------------------+--------------------+--------------------------+-------------
+ comments_comments        | id                 | bigint                   | NO
+ comments_comments        | created_at         | timestamp with time zone | NO
+ comments_comments        | updated_at         | timestamp with time zone | NO
+ comments_comments        | deleted_at         | timestamp with time zone | YES
+ comments_comments        | text               | text                     | NO
+ comments_comments        | author_id          | bigint                   | NO
+ comments_comments        | question_id        | bigint                   | NO
+ questions_analyticsevent | id                 | bigint                   | NO
+ questions_analyticsevent | event_name         | character varying        | NO
+ questions_analyticsevent | search_query       | character varying        | YES
+ questions_analyticsevent | created_at         | timestamp with time zone | NO
+ questions_analyticsevent | question_id        | bigint                   | YES
+ questions_analyticsevent | user_id            | bigint                   | YES
+ questions_analyticsevent | metadata           | jsonb                    | YES
+ questions_analyticsevent | session_id         | character varying        | YES
+ questions_question       | id                 | bigint                   | NO
+ questions_question       | created_at         | timestamp with time zone | NO
+ questions_question       | updated_at         | timestamp with time zone | NO
+ questions_question       | deleted_at         | timestamp with time zone | YES
+ questions_question       | title              | character varying        | NO
+ questions_question       | description        | text                     | YES
+ questions_question       | slug               | character varying        | NO
+ questions_question       | is_active          | boolean                  | NO
+ questions_question       | author_id          | bigint                   | NO
+ questions_question_tag   | id                 | bigint                   | NO
+ questions_question_tag   | question_id        | bigint                   | NO
+ questions_question_tag   | tag_id             | bigint                   | NO
+ tags_tag                 | id                 | bigint                   | NO
+ tags_tag                 | created_at         | timestamp with time zone | NO
+ tags_tag                 | updated_at         | timestamp with time zone | NO
+ tags_tag                 | deleted_at         | timestamp with time zone | YES
+ tags_tag                 | name               | character varying        | NO
+ tags_tag                 | slug               | character varying        | NO
+ users_customuser         | id                 | bigint                   | NO
+ users_customuser         | last_login         | timestamp with time zone | YES
+ users_customuser         | is_superuser       | boolean                  | NO
+ users_customuser         | created_at         | timestamp with time zone | YES
+ users_customuser         | updated_at         | timestamp with time zone | YES
+ users_customuser         | deleted_at         | timestamp with time zone | YES
+ users_customuser         | email              | character varying        | NO
+ users_customuser         | first_name         | character varying        | NO
+ users_customuser         | last_name          | character varying        | NO
+ users_customuser         | password           | character varying        | NO
+ users_customuser         | is_active          | boolean                  | NO
+ users_customuser         | is_staff           | boolean                  | NO
+ users_customuser         | avatar             | character varying        | YES
+ users_customuser         | preffered_language | character varying        | NO
+ users_customuser         | timezone           | character varying        | NO
+(48 rows)
+
+        table_name        | constraint_type |                                        definition
+--------------------------+-----------------+-------------------------------------------------------------------------------------------
+ comments_comments        | f               | FOREIGN KEY (author_id) REFERENCES users_customuser(id) DEFERRABLE INITIALLY DEFERRED
+ comments_comments        | f               | FOREIGN KEY (question_id) REFERENCES questions_question(id) DEFERRABLE INITIALLY DEFERRED
+ comments_comments        | p               | PRIMARY KEY (id)
+ questions_analyticsevent | f               | FOREIGN KEY (question_id) REFERENCES questions_question(id) DEFERRABLE INITIALLY DEFERRED
+ questions_analyticsevent | f               | FOREIGN KEY (user_id) REFERENCES users_customuser(id) DEFERRABLE INITIALLY DEFERRED
+ questions_analyticsevent | p               | PRIMARY KEY (id)
+ questions_question       | f               | FOREIGN KEY (author_id) REFERENCES users_customuser(id) DEFERRABLE INITIALLY DEFERRED
+ questions_question       | p               | PRIMARY KEY (id)
+ questions_question       | u               | UNIQUE (slug)
+ questions_question_tag   | f               | FOREIGN KEY (question_id) REFERENCES questions_question(id) DEFERRABLE INITIALLY DEFERRED
+ questions_question_tag   | f               | FOREIGN KEY (tag_id) REFERENCES tags_tag(id) DEFERRABLE INITIALLY DEFERRED
+ questions_question_tag   | p               | PRIMARY KEY (id)
+ questions_question_tag   | u               | UNIQUE (question_id, tag_id)
+ tags_tag                 | p               | PRIMARY KEY (id)
+ tags_tag                 | u               | UNIQUE (slug)
+ users_customuser         | p               | PRIMARY KEY (id)
+ users_customuser         | u               | UNIQUE (email)
+(17 rows)
+
+        table_name        | rows
+--------------------------+------
+ comments_comments        |    3
+ questions_analyticsevent |   12
+ questions_question       |    4
+ questions_question_tag   |    6
+ tags_tag                 |    4
+ users_customuser         |    2
+(6 rows)
+
+ id |       email       | first_name | last_name | is_active
+----+-------------------+------------+-----------+-----------
+  1 | alice@example.com | Alice      | Student   | t
+  2 | bob@example.com   | Bob        | Student   | t
+(2 rows)
+
+ id |              title              |      author       |        tags
+----+---------------------------------+-------------------+--------------------
+  1 | Django serializers explained    | alice@example.com | django, python
+  2 | PostgreSQL unique constraint    | alice@example.com | postgresql, python
+  3 | Angular component communication | alice@example.com | angular
+(3 rows)
+
+ id |           question           |     author      |                  text
+----+------------------------------+-----------------+----------------------------------------
+  1 | Django serializers explained | bob@example.com | Use a ModelSerializer.
+  2 | Django serializers explained | bob@example.com | Call is_valid before save.
+  3 | PostgreSQL unique constraint | bob@example.com | Add a UNIQUE constraint to the column.
+(3 rows)
+
+ id |              title              | comment_count
+----+---------------------------------+---------------
+  1 | Django serializers explained    |             2
+  2 | PostgreSQL unique constraint    |             1
+  3 | Angular component communication |             0
+(3 rows)
+
+    name    | question_count
+------------+----------------
+ python     |              2
+ angular    |              1
+ django     |              1
+ postgresql |              1
+(4 rows)
+
+ id |              title              | is_deleted | tag_links | comments
+----+---------------------------------+------------+-----------+----------
+  1 | Django serializers explained    | f          |         2 |        2
+  2 | PostgreSQL unique constraint    | f          |         2 |        1
+  3 | Angular component communication | f          |         1 |        0
+  4 | Python temporary question       | t          |         1 |        0
+(4 rows)
+
+ id |            title             |          created_at
+----+------------------------------+-------------------------------
+  2 | PostgreSQL unique constraint | 2026-09-29 20:51:21.849026+00
+  1 | Django serializers explained | 2026-09-29 20:51:21.831532+00
+(2 rows)
+
+    event_name    |   source   | events
+------------------+------------+--------
+ question_created | -          |      4
+ question_view    | -          |      3
+ search           | submit     |      4
+ search           | suggestion |      1
+(4 rows)
+
+     search_query      |   source   | requests
+-----------------------+------------+----------
+ avoid duplicate rows  | submit     |        1
+ DJANGO                | submit     |        1
+ parameterized queries | submit     |        1
+ python                | submit     |        1
+ python                | suggestion |        1
+(5 rows)
+
+         check_name          | problems
+-----------------------------+----------
+ comment_without_author      |        0
+ comment_without_question    |        0
+ duplicate_question_tag_pair |        0
+ event_without_question      |        0
+ event_without_user          |        0
+ question_without_author     |        0
+ tag_link_without_question   |        0
+ tag_link_without_tag        |        0
+(8 rows)

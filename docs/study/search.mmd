@@ -1,0 +1,26 @@
+sequenceDiagram
+    actor User as Пользователь
+    participant UI as Angular QuestionsComponent
+    participant API as Django list_questions
+    participant DB as PostgreSQL
+    User->>UI: Ввод текста
+    UI->>UI: Отмена предыдущего таймера/запроса
+    UI->>UI: Пауза 300 мс для непустого текста
+    UI->>API: GET /api/questions/list?q=python&suggest=1
+    API->>DB: INSERT search event, source=suggestion
+    API->>DB: deleted_at IS NULL + icontains в title/description/tag.name
+    Note over API,DB: OR + DISTINCT<br/>Сортировка created_at DESC, id DESC
+    DB-->>API: До 5 вопросов
+    API-->>UI: JSON подсказок
+    UI-->>User: Список подсказок
+    User->>UI: Отправка поиска
+    UI->>API: GET /api/questions/list?q=python&suggest=0
+    API->>DB: INSERT search event, source=submit
+    API->>DB: Тот же фильтр, LIMIT 50
+    DB-->>API: До 50 вопросов
+    API-->>UI: JSON результата
+    User->>UI: Открытие вопроса
+    UI->>API: GET /api/questions/slug/retrieve
+    API->>DB: SELECT вопрос и комментарии<br/>INSERT question_view
+    API-->>UI: Карточка и комментарии
+    Note over UI,DB: Embeddings, similarity score и NLP-модель отсутствуют
