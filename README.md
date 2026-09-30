@@ -101,6 +101,14 @@ docker compose --env-file backend/.env exec backend python manage.py createsuper
 Compose sets DB_HOST=db inside the backend container. Start Angular using the
 same npm commands. Existing Redis and Celery services are behind the legacy profile.
 
+The Docker backend runs `backend/start.py` on every start: migrations, demo data,
+static files, then the API server. `backend/seed_demo.py` adds 12 example questions
+and 8 tags without clearing the database; repeated runs skip existing examples.
+Run `python seed_demo.py` manually from `backend/`, or set `SEED_DEMO_DATA=False`
+to disable automatic inserts. For Render, use the Dockerfile's default command
+or Python Start Command `python start.py` with Root Directory `backend`.
+See [demo data and Render settings](docs/deployment.md#automatic-demo-data-on-docker-and-render).
+
 ## Verify the MVP
 
 With the virtual environment activated, from backend/:

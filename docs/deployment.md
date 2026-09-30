@@ -4,10 +4,9 @@ Architecture: static Angular frontend → Django REST API → PostgreSQL.
 Redis, Celery and WebSockets are not required for this flow. The old optional
 Docker services can be started with `--profile legacy` if needed separately.
 
-No public deployment was performed: this workspace has no configured hosting
-provider credentials. The remaining external step is to create/connect a hosting
-project with a static site, Python web service and managed PostgreSQL database,
-then apply the settings and commands below. No provider-specific framework is needed.
+The production backend is configured for Render. Repository changes must be
+deployed to the existing service before they affect its PostgreSQL database.
+The instructions below cover both Docker and Render's native Python runtime.
 
 ## Backend environment
 
@@ -19,12 +18,8 @@ STACK_UNDERFLOW_SECRET_KEY=<random secret generated locally>
 ALLOWED_HOSTS=api.your-domain.example
 CORS_ALLOWED_ORIGINS=https://your-frontend.example
 CSRF_TRUSTED_ORIGINS=https://api.your-domain.example
-DB_NAME=<database name>
-DB_USER=<database user>
-DB_PASSWORD=<database password>
-DB_HOST=<database host>
-DB_PORT=5432
-DB_SSLMODE=require
+DATABASE_URL=<Render PostgreSQL internal connection URL>
+SEED_DEMO_DATA=True
 SECURE_SSL_REDIRECT=True
 TRUST_PROXY_HTTPS=True
 ```
@@ -54,7 +49,7 @@ python manage.py collectstatic --noinput
 Start command, from `backend/`:
 
 ```bash
-daphne -b 0.0.0.0 -p "${PORT:-8000}" stack_underflow.asgi:application
+python start.py
 ```
 
 Use the host's PORT value. WhiteNoise serves collected admin/static files. Create
@@ -67,9 +62,62 @@ The existing backend Dockerfile also works for a container web service:
 docker build -t stack-underflow-backend ./backend
 ```
 
-Supply the same environment privately to the container. Run migrations as a
-release command before receiving traffic. Its default command collects static
-files and starts Daphne on PORT. Do not put backend/.env into the image.
+Supply the same environment privately to the container. Its default command is
+`python start.py`: apply migrations, run `seed_demo.py`, collect static files,
+then start Daphne on PORT. A failed preparation step prevents the server from
+starting. Do not put backend/.env into the image.
+
+## Automatic demo data on Docker and Render
+
+`backend/seed_demo.py` adds 12 programming questions, 8 tags and their links.
+It creates a Demo Author account with an unusable password and no admin rights;
+register normally to publish your own questions. It does not require a seed
+password, delete existing data, reset passwords or create fake analytics events.
+
+Stable demo slugs make repeated runs skip existing questions. Existing content,
+tag associations and soft-deleted questions are preserved. If you rename a demo
+question through the API, its slug changes; the original example can then be
+created again on the next seed. All inserts use one transaction; simultaneous
+PostgreSQL runs use an advisory lock. A partial failure rolls back the inserts.
+Set `SEED_DEMO_DATA=False` to skip automatic seeding while keeping existing rows.
+
+On **Render Docker**, use `backend/Dockerfile` with `backend` as the Docker build
+context (or set Root Directory to `backend` and Dockerfile Path to `Dockerfile`).
+Leave Docker Command empty to use the Dockerfile CMD, or set it to
+`python start.py`. An existing custom Docker Command takes precedence over CMD.
+See [Render Docker configuration](https://render.com/docs/docker).
+
+On **Render Python**, with Root Directory `backend`, set Build Command to
+`pip install -r requirements/base.txt` and Start Command to `python start.py`.
+With the repository root as Root Directory, use
+`pip install -r backend/requirements/base.txt` and `python backend/start.py`.
+Set `STACK_UNDERFLOW_ENV_ID=prod` and the existing private `DATABASE_URL` so
+the examples are inserted into the Render PostgreSQL database.
+
+Deploy these changes to the branch connected to the Render service. Every
+subsequent backend start runs the seed automatically. Opening Docker Desktop
+locally does not restart the service on Render.
+
+For **local Docker**, after configuring `backend/.env`, run:
+
+```bash
+docker compose --env-file backend/.env up --build -d
+```
+
+The backend and database use `restart: unless-stopped`, so already-running
+containers return after a Docker restart unless explicitly stopped. The local
+database stays in the `db_data` volume. Local Compose uses `DB_HOST=db` and
+the local database credentials, separately from the Render database.
+
+To add examples manually using the current Django database configuration:
+
+```bash
+cd backend
+python seed_demo.py
+```
+
+Or run `backend/scripts/seed.sh` against the local Compose backend. Check the
+startup log for `Demo data ready` and `/api/questions/list` for the examples.
 
 ## Frontend
 
