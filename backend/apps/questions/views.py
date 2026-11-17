@@ -116,6 +116,20 @@ class QuestionViewSet(ViewSet):
             context["user_id"] = request.user.id
         return context
 
+    def search_queryset(self, request: DRFRequest):
+        """Queryset for ?search= (title/description) and ?tag= (slug or name).
+
+        Also used by the `explain_search` management command (US-08).
+        """
+        questions = Question.objects.filter(deleted_at__isnull=True)
+        tag = request.GET.get("tag", "").strip()
+        if tag:
+            questions = questions.filter(
+                Q(tag__slug__iexact=tag) | Q(tag__name__iexact=tag)
+            )
+        questions = SearchFilter().filter_queryset(request, questions, self)
+        return questions.distinct().order_by("-created_at", "-id")
+
     @extend_schema(
         tags=["Questions"],
         summary="List all questions",
@@ -174,16 +188,8 @@ class QuestionViewSet(ViewSet):
         methods=["GET"], permission_classes=(AllowAny,), url_path="list", detail=False
     )
     def list_questions(self, request: DRFRequest, *args, **kwargs) -> DRFResponse:
-        search = request.GET.get("search", "").strip()
-        tag = request.GET.get("tag", "").strip()
-        if search or tag:
-            questions = Question.objects.filter(deleted_at__isnull=True)
-            if tag:
-                questions = questions.filter(
-                    Q(tag__slug__iexact=tag) | Q(tag__name__iexact=tag)
-                )
-            questions = SearchFilter().filter_queryset(request, questions, self)
-            questions = questions.distinct().order_by("-created_at", "-id")
+        if request.GET.get("search", "").strip() or request.GET.get("tag", "").strip():
+            questions = self.search_queryset(request)
             return DRFResponse(
                 QuestionListSerializer(questions, many=True).data, status=HTTP_200_OK
             )
