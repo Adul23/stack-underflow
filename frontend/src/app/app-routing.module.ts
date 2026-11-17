@@ -1,3 +1,4 @@
+import { AnalyticsComponent } from './components/analytics/analytics.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuardService } from "./services/auth-guard.service";
@@ -19,6 +20,7 @@ import { PasswordChangeComponent } from './components/password-change/password-c
 import { ProfileComponent } from './components/profile/profile.component';
 
 const routes: Routes = [
+  { path: 'analytics', component: AnalyticsComponent },
   { path: 'home', component: HomeComponent },
   { path: 'questions', component: QuestionsComponent },
   { path: 'questions/:slug', component: QuestionDetailComponent },

@@ -48,3 +48,46 @@ For a managed PostgreSQL database, run `psql` with its connection environment
 ```bash
 psql -v ON_ERROR_STOP=1 -f docs/analytics_queries.sql
 ```
+
+
+## Dashboard (US-10)
+
+Open `/analytics` in the Angular app after signing in as a staff user
+(`is_staff=True`). The backend enforces staff access: anonymous requests return
+401, ordinary users return 403. `GET /api/analytics/summary/` returns lifetime
+`totals` (question_view, question_create, search) and `top_questions` (up to five,
+ordered by views descending, ties by question ID). Deleted questions are excluded
+from the ranking; historical events still count in totals.
+
+The existing AnalyticsEvent table is retained to preserve data and compatibility.
+The analytics app provides aggregation; `question_created` is exposed as
+`question_create` in the API. The event_name + created_at index is migration 0006.
+
+### Fill the database for a presentation
+
+From `backend`, using your configured environment:
+
+```sh
+python manage.py migrate
+python manage.py seed_bulk --count 5000
+python manage.py seed_analytics --count 500
+python manage.py createsuperuser
+```
+
+`seed_bulk` creates questions and tags; `seed_analytics` adds explicitly synthetic
+activity across the last seven days. It never assigns synthetic actions to real
+users. Rerunning replaces only its own marked events. Do not use synthetic counts
+as evidence of real usage. No public event-write endpoint is exposed.
+
+For Docker, prefix each command with
+`docker compose --env-file backend/.env exec backend` from the repository root.
+
+### Demo
+
+1. Log in as an administrator and open Analytics; show the three counters and ranking.
+2. Open a question, search for django, then create a question with tags.
+3. Return to Analytics and click Refresh: the relevant totals increase.
+4. Show that an ordinary user cannot access the analytics API.
+
+Counts are request-based, not unique users. Tag-only filtering currently does not
+record a keyword search event; keyword and legacy q searches do.
