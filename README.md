@@ -1,4 +1,4 @@
-# STACK UNDERFLOW
+# Stack underflow — Developer Q&A Platform
 
 A minimal Q&A platform where users can ask questions, add tags, browse existing
 questions, search by keywords/tags, and leave answers/comments.
@@ -11,11 +11,35 @@ questions, search by keywords/tags, and leave answers/comments.
 Angular → Django REST API → PostgreSQL
 ```
 
-The existing user, question, tag and comment models are reused. Search matches
-title, description and tag names. Suggestions wait 300 ms and show up to five
-matches; a submitted search returns up to 50. This is keyword search without
-embeddings. Analytics stores search, question_view and question_created events,
-including an optional browser session UUID. Chat and profiles are outside the MVP.
+The existing user, question, tag and comment models are reused. The Questions
+page has a keyword search box and a tag filter (`GET /api/questions/list?search=django&tag=python`).
+Suggestions while typing wait 300 ms and show up to five matches. This is keyword
+search without embeddings, backed by PostgreSQL trigram indexes. Analytics stores
+search, question_view and question_created events, including an optional browser
+session UUID.
+
+## Semester scope
+
+MVP "Must" features and their status at the final presentation:
+
+| Feature | Status | Where |
+|---|---|---|
+| Registration and JWT login | Done | `/signup`, `/login`; `apps/users` |
+| Ask a question with tags; edit/delete your own | Done | `/newquestion`, `/questions/edit/:slug`; `apps/questions` |
+| Browse questions and open question details | Done | `/questions`, `/questions/:slug` |
+| Comment on questions | Done | Question detail page; `apps/comments` |
+| Browse tags and the questions under each tag | Done | `/tags`, `/tags/:slug`; `apps/tags` |
+| Keyword + tag search (US-03) | Done | Search box + tag filter on `/questions`; `?search=&tag=` API, documented in Swagger |
+| Database indexes with measured impact (US-08) | Done | Migrations + [EXPLAIN ANALYZE results](docs/explain_analyze.md): search 12.8 ms → 0.5 ms |
+| Usage analytics | Partial | Events are recorded and summarised with [SQL queries](docs/analytics_queries.sql) and Django admin; there is no in-app dashboard |
+| Public deployment | Partial | [Render setup](docs/deployment.md); the production frontend points at the Render API, which was not re-verified for this release |
+| Automated tests | Partial | Backend pytest suite passes except one flaky legacy chat test; Angular specs need Chrome to run |
+
+**Outside the MVP:** `backend/apps/chat` (WebSocket chat via Channels + Redis) is
+a prototype that predates the semester scope. It is not in `INSTALLED_APPS`,
+it is not part of the demo flow, and it is not required to run the MVP. The same
+applies to the Celery/Redis services behind the `legacy` Compose profile, and to
+the profile and user-management pages.
 
 ## Structure and database
 
@@ -115,7 +139,7 @@ With the virtual environment activated, from backend/:
 
 ```bash
 python manage.py makemigrations --check --dry-run
-python -m pytest tests/MVPTests.py tests/QuestionsTests.py tests/UsersTests.py tests/TagsTests.py tests/CommentsTests.py -q
+python -m pytest tests/MVPTests.py tests/QuestionsTests.py tests/SearchTests.py tests/SeedBulkTests.py tests/UsersTests.py tests/TagsTests.py tests/CommentsTests.py -q
 ```
 
 The database user needs CREATEDB permission for Django's disposable test database
@@ -131,11 +155,38 @@ npm test -- --watch=false --browsers=ChromeHeadless --include=src/app/components
 Chrome must be installed for browser tests. The production build fetches the
 existing Google Font stylesheet and needs internet access.
 
-Demo: register/login → ask a question with python/django tags → browse Questions
-→ type a title word or tag → open a suggestion → add a comment → reload → inspect
-AnalyticsEvent in admin.
+## Demo script
 
-Run SQL from the repository root:
+About 5 minutes. Start PostgreSQL, Django and Angular as described above, then
+open http://localhost:4200. Optionally run `python manage.py seed` first so the
+lists are not empty.
+
+1. **Register.** Click Sign up, create an account, then log in. The navbar
+   switches to the logged-in state.
+2. **Create a question with tags.** Click Ask Question and enter
+   - title: *How do I paginate a DRF viewset?*
+   - description: a sentence or two
+   - tags: `python`, `django`
+
+   Submit. The new question opens and shows its tags.
+3. **Search.** Go to Questions.
+   - Type `paginate`. Suggestions appear after 300 ms.
+   - Press Search to see the full results.
+   - Pick `#django` in the tag dropdown. The list narrows to keyword + tag matches.
+   - Click a tag chip on any card to filter by that tag. Click Clear to reset.
+   - Optional: show the same call in Swagger at http://127.0.0.1:8000/api/docs/
+     (`GET /api/questions/list?search=paginate&tag=django`).
+4. **Comment.** Open the question, add a comment, and reload the page. The
+   comment is still there.
+5. **View the analytics summary.** Run the SQL below. It shows searches per day,
+   the most common search terms (including `paginate`), the most viewed
+   questions, popular tags and active sessions. You can also open
+   http://127.0.0.1:8000/admin/ → Questions → Analytics events to show the
+   individual events the demo just created.
+6. *(Optional)* **Performance.** Show the before/after table in
+   [docs/explain_analyze.md](docs/explain_analyze.md).
+
+Run the analytics SQL from the repository root (needs the Docker PostgreSQL database):
 
 ```bash
 docker compose --env-file backend/.env exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1' < docs/analytics_queries.sql

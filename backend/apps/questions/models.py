@@ -90,6 +90,18 @@ class Question(AbstractBaseModel):
 
         verbose_name = "Question"
         verbose_name_plural = "Questions"
+        # US-08. `slug` needs no extra index: unique=True already creates one.
+        # Trigram (pg_trgm) indexes for the icontains search live in migration
+        # 0005 because they are PostgreSQL-only.
+        indexes = [
+            # Feed / search ordering: WHERE deleted_at IS NULL ORDER BY created_at DESC, id DESC
+            models.Index(
+                fields=["-created_at", "-id"],
+                condition=models.Q(deleted_at__isnull=True),
+                name="question_live_created_idx",
+            ),
+            models.Index(fields=["is_active", "-created_at"], name="question_active_created_idx"),
+        ]
 
 
 class AnalyticsEvent(models.Model):

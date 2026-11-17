@@ -1,7 +1,7 @@
 # Python imports
 
 # Django imports
-from django.db.models import CASCADE, PROTECT, ForeignKey, Manager, TextField
+from django.db.models import CASCADE, PROTECT, ForeignKey, Index, Manager, TextField
 
 from apps.abstract.models import AbstractBaseModel
 
@@ -39,5 +39,7 @@ class Comments(AbstractBaseModel):
     class Meta:
         verbose_name = "Comment"
         verbose_name_plural = "Comments"
+        # US-08: comments of a question, in chronological order
+        indexes = [Index(fields=["question", "created_at"], name="comment_question_created_idx")]
 
 

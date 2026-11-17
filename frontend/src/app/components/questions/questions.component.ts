@@ -12,6 +12,7 @@ import { ServiceService } from 'src/app/services/service.service';
 })
 export class QuestionsComponent implements OnInit, OnDestroy {
   query = '';
+  selectedTag = '';  // tag slug, '' = all tags
   loading = false;
   error = '';
   filteredQuestions: Questions[] = [];
@@ -40,11 +41,19 @@ export class QuestionsComponent implements OnInit, OnDestroy {
     this.input.next(value);
   }
 
+  get hasFilters(): boolean {
+    return !!(this.query.trim() || this.selectedTag);
+  }
+
   search() {
     this.input.next('');
     this.loading = true;
     this.error = '';
-    this.service.getQuestions(this.query.trim()).pipe(takeUntil(this.destroyed)).subscribe({
+    // With a keyword or tag use the US-03 search API; otherwise load the full list.
+    const request = this.hasFilters
+      ? this.service.searchQuestions(this.query, this.selectedTag)
+      : this.service.getQuestions();
+    request.pipe(takeUntil(this.destroyed)).subscribe({
       next: questions => {
         this.filteredQuestions = questions;
         this.loading = false;
@@ -54,6 +63,19 @@ export class QuestionsComponent implements OnInit, OnDestroy {
         this.loading = false;
       }
     });
+  }
+
+  filterByTag(tagId: number) {
+    const slug = this.tags.find(t => t.id === tagId)?.slug;
+    if (!slug) return;
+    this.selectedTag = slug;
+    this.search();
+  }
+
+  clearFilters() {
+    this.query = '';
+    this.selectedTag = '';
+    this.search();
   }
 
   getTagName(tagId: number): string {

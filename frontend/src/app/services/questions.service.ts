@@ -21,6 +21,14 @@ export class QuestionsService {
     return this.http.get<Questions[]>(`${this.base_url}/list`, { params: { q: query, suggest: suggest ? '1' : '0' } });
   }
 
+  /** US-03: GET /questions/list?search=<keywords>&tag=<slug>. Empty values are not sent. */
+  searchQuestions(search = '', tag = ''): Observable<Questions[]> {
+    const params: Record<string, string> = {};
+    if (search.trim()) params['search'] = search.trim();
+    if (tag.trim()) params['tag'] = tag.trim();
+    return this.http.get<Questions[]>(`${this.base_url}/list`, { params });
+  }
+
   getQuestion(slug: string): Observable<QuestionDetailResponse> {
     return this.http.get<QuestionDetailResponse>(`${this.base_url}/${slug}/retrieve`);
   }

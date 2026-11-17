@@ -306,8 +306,34 @@ paths:
   /api/questions/list:
     get:
       operationId: questions_list_retrieve
-      description: Returns a list of all questions. Authentication is not required.
+      description: List questions. Use `search` (keyword match on title/description)
+        and/or `tag` (tag slug or name) to filter, e.g. `?search=django&tag=python`.
+        The legacy `q` parameter matches title, description and tags; it returns up
+        to 50 matches, or 5 with `suggest=1`.
       summary: List all questions
+      parameters:
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search words or tag name
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Keyword search on question title and description (case-insensitive;
+          space-separated terms must all match).
+      - in: query
+        name: suggest
+        schema:
+          type: string
+        description: Use 1 for up to five suggestions
+      - in: query
+        name: tag
+        schema:
+          type: string
+        description: Filter by tag slug or tag name (case-insensitive exact match),
+          e.g. `python`.
       tags:
       - Questions
       security:

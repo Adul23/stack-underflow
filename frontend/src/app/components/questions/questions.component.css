@@ -24,47 +24,6 @@
     box-shadow: 0 6px 16px rgba(0, 123, 255, 0.25);
 }
 
-.alert-msg {
-    color: #dc3545;
-    margin-top: 0.5rem;
-    font-size: 0.88rem;
-}
-
-
-/* Tabs */
-
-.filter-wrapper {
-    margin-bottom: 1.5rem;
-}
-
-.filter-wrapper .nav-tabs {
-    border-bottom: 2px solid #d0e5ff;
-}
-
-.filter-wrapper .nav-link {
-    color: #6c757d;
-    font-weight: 500;
-    border: none;
-    border-bottom: 3px solid transparent;
-    border-radius: 0;
-    padding: 8px 20px;
-    transition: all 0.2s ease;
-    background: none;
-}
-
-.filter-wrapper .nav-link:hover {
-    color: #0d6efd;
-    border-bottom: 3px solid #a8c8ff;
-}
-
-.filter-wrapper .nav-link.active {
-    color: #0d6efd;
-    font-weight: 700;
-    border-bottom: 3px solid #0d6efd;
-    background: none;
-}
-
-
 /* Cards */
 
 .question-list {
@@ -130,7 +89,18 @@
     border-top: 1px solid #f0f4ff;
 }
 
+.search-input {
+    flex: 1 1 240px;
+}
+
+.tag-select {
+    flex: 0 1 180px;
+}
+
 .tag {
+    cursor: pointer;
+    font-family: inherit;
+    line-height: inherit;
     background: #eef4ff;
     color: #0d6efd;
     border: 1px solid #c5d9ff;
@@ -148,6 +118,7 @@
 }
 
 .tag-more {
+    cursor: default;
     background: #f5f5f5;
     color: #9aa5b4;
     border-color: #e0e0e0;

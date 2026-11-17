@@ -9,13 +9,15 @@ describe('Questions search', () => {
   let service: jasmine.SpyObj<QuestionsService>;
 
   beforeEach(() => {
-    service = jasmine.createSpyObj('QuestionsService', ['getQuestions']);
+    service = jasmine.createSpyObj('QuestionsService', ['getQuestions', 'searchQuestions']);
     service.getQuestions.and.returnValue(of([]));
+    service.searchQuestions.and.returnValue(of([]));
     const tags = jasmine.createSpyObj('ServiceService', ['getTags']);
-    tags.getTags.and.returnValue(of([]));
+    tags.getTags.and.returnValue(of([{ id: 7, name: 'Python', slug: 'python' }]));
     component = new QuestionsComponent(service, tags as ServiceService);
     component.ngOnInit();
     service.getQuestions.calls.reset();
+    service.searchQuestions.calls.reset();
   });
 
   afterEach(() => component.ngOnDestroy());
@@ -45,6 +47,38 @@ describe('Questions search', () => {
     component.onQueryChange(component.query);
     component.search();
     tick(500);
-    expect(service.getQuestions).toHaveBeenCalledOnceWith('python');
+    expect(service.searchQuestions).toHaveBeenCalledOnceWith(' python ', '');
+    expect(service.getQuestions).not.toHaveBeenCalled();
   }));
+
+  it('loads the full list when there is no keyword or tag', () => {
+    component.search();
+    expect(service.getQuestions).toHaveBeenCalledOnceWith();
+    expect(service.searchQuestions).not.toHaveBeenCalled();
+  });
+
+  it('combines keyword and selected tag in one search request', () => {
+    const results = [{ id: 1, title: 'Django serializers', tag: [7] } as any];
+    service.searchQuestions.and.returnValue(of(results));
+    component.query = 'django';
+    component.selectedTag = 'python';
+    component.search();
+    expect(service.searchQuestions).toHaveBeenCalledOnceWith('django', 'python');
+    expect(component.filteredQuestions).toEqual(results);
+  });
+
+  it('filters by a tag chip using the tag slug', () => {
+    component.filterByTag(7);
+    expect(component.selectedTag).toBe('python');
+    expect(service.searchQuestions).toHaveBeenCalledOnceWith('', 'python');
+  });
+
+  it('clear resets keyword and tag and reloads the full list', () => {
+    component.query = 'django';
+    component.selectedTag = 'python';
+    component.clearFilters();
+    expect(component.query).toBe('');
+    expect(component.selectedTag).toBe('');
+    expect(service.getQuestions).toHaveBeenCalledOnceWith();
+  });
 });
