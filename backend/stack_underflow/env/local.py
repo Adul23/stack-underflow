@@ -1,4 +1,7 @@
-from stack_underflow.base import *
+from decouple import config
+
+from stack_underflow.base import *  # noqa: F403 -- Inherit all shared Django settings.
+from stack_underflow.base import BASE_DIR
 
 DEBUG = True
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "testserver"]
