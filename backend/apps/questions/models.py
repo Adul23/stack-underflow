@@ -112,3 +112,6 @@ class AnalyticsEvent(models.Model):
     search_query = models.CharField(max_length=255, null=True, blank=True)
     metadata = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["event_name", "created_at"], name="event_type_created_idx")]

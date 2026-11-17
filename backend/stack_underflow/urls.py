@@ -6,7 +6,10 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
+from apps.analytics.views import SummaryView
+
 urlpatterns = [
+    path("api/analytics/summary/", SummaryView.as_view(), name="analytics-summary"),
     path("admin/", admin.site.urls),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
