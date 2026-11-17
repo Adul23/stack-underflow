@@ -19,6 +19,7 @@ from drf_spectacular.utils import (
 # Rest-Framework imports
 from rest_framework import serializers
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request as DRFRequest
 from rest_framework.response import Response as DRFResponse
@@ -100,6 +101,8 @@ class QuestionViewSet(ViewSet):
     queryset = Question.objects.all()
     lookup_field = "slug"
     permission_classes = [IsAuthenticated]
+    # Used by DRF SearchFilter for ?search= on the list endpoint (US-03)
+    search_fields = ["title", "description"]
 
     def _get_log_context(self, request: DRFRequest) -> dict:
         """Helper to create consistent base logging context."""
@@ -116,8 +119,23 @@ class QuestionViewSet(ViewSet):
     @extend_schema(
         tags=["Questions"],
         summary="List all questions",
-        description="List questions or match title, description and tags. Search returns up to 50 matches; suggestions return 5.",
+        description=(
+            "List questions. Use `search` (keyword match on title/description) and/or "
+            "`tag` (tag slug or name) to filter, e.g. `?search=django&tag=python`. "
+            "The legacy `q` parameter matches title, description and tags; it returns up to "
+            "50 matches, or 5 with `suggest=1`."
+        ),
         parameters=[
+            OpenApiParameter(
+                "search",
+                str,
+                description="Keyword search on question title and description (case-insensitive; space-separated terms must all match).",
+            ),
+            OpenApiParameter(
+                "tag",
+                str,
+                description="Filter by tag slug or tag name (case-insensitive exact match), e.g. `python`.",
+            ),
             OpenApiParameter("q", str, description="Search words or tag name"),
             OpenApiParameter("suggest", str, description="Use 1 for up to five suggestions"),
         ],
@@ -156,6 +174,20 @@ class QuestionViewSet(ViewSet):
         methods=["GET"], permission_classes=(AllowAny,), url_path="list", detail=False
     )
     def list_questions(self, request: DRFRequest, *args, **kwargs) -> DRFResponse:
+        search = request.GET.get("search", "").strip()
+        tag = request.GET.get("tag", "").strip()
+        if search or tag:
+            questions = Question.objects.filter(deleted_at__isnull=True)
+            if tag:
+                questions = questions.filter(
+                    Q(tag__slug__iexact=tag) | Q(tag__name__iexact=tag)
+                )
+            questions = SearchFilter().filter_queryset(request, questions, self)
+            questions = questions.distinct().order_by("-created_at", "-id")
+            return DRFResponse(
+                QuestionListSerializer(questions, many=True).data, status=HTTP_200_OK
+            )
+
         query = request.GET.get("q", "").strip()
         if query:
             questions = Question.objects.filter(deleted_at__isnull=True).filter(
