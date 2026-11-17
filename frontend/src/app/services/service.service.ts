@@ -27,8 +27,8 @@ export class ServiceService {
   //   return this.http.get<Tags>(`${this.base_url}/tags/${id}/`);
   // }
 
-  getTag(name: string): Observable<TagDetailResponse> {
-    return this.http.get<TagDetailResponse>(`${this.base_url}tags/${name}/retrieve`);
+  getTag(slug: string): Observable<TagDetailResponse> {
+    return this.http.get<TagDetailResponse>(`${this.base_url}tags/${slug}/retrieve`);
   }
 
   createTag(name: string): Observable<Tags> {
