@@ -1,7 +1,7 @@
 # Python imports
+import uuid
 from logging import getLogger
 
-import uuid
 from django.core.cache import cache
 
 # Django imports

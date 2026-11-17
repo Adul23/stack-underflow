@@ -6,7 +6,6 @@ import sys
 from stack_underflow.conf import ENV_ID, ENV_POSSIBLE_OPTIONS
 
 
-
 def main():
     """Run administrative tasks."""
     assert (

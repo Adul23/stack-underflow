@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from django.db import connection
 from rest_framework.test import APIClient
+
 from apps.questions.models import AnalyticsEvent, Question
 from apps.tags.models import Tag
 
@@ -80,7 +81,9 @@ class TestMVP:
 
     def test_suggestions_are_limited_and_keep_session(self, api_client, user):
         for i in range(7):
-            Question.objects.create(title=f'Django question {i}', description='Example', slug=f'django-{i}', author=user)
+            Question.objects.create(
+                title=f"Django question {i}", description="Example", slug=f"django-{i}", author=user
+            )
         session = '693b8670-ed57-4d63-bde4-168397c0c719'
         result = api_client.get('/api/questions/list', {'q': 'django', 'suggest': '1'}, HTTP_X_SESSION_ID=session)
         assert len(result.data) == 5
@@ -95,7 +98,9 @@ class TestMVP:
 
     def test_question_events_share_browser_session(self, auth_client):
         session = '693b8670-ed57-4d63-bde4-168397c0c719'
-        created = auth_client.post('/api/questions/create', {'title': 'Session example', 'description': 'Example'}, HTTP_X_SESSION_ID=session)
+        created = auth_client.post(
+            "/api/questions/create", {"title": "Session example", "description": "Example"}, HTTP_X_SESSION_ID=session
+        )
         assert created.status_code == 201
         auth_client.get(f"/api/questions/{created.data['slug']}/retrieve", HTTP_X_SESSION_ID=session)
         assert AnalyticsEvent.objects.filter(session_id=session).count() == 2
@@ -108,6 +113,8 @@ class TestMVP:
 
     def test_tag_cache_refreshes_after_question_creation(self, api_client, auth_client, tag):
         assert api_client.get(f'/api/tags/{tag.slug}/retrieve').data['questions'] == []
-        created = auth_client.post('/api/questions/create', {'title': 'New tagged question', 'description': 'Example', 'tag': [tag.id]})
+        created = auth_client.post(
+            "/api/questions/create", {"title": "New tagged question", "description": "Example", "tag": [tag.id]}
+        )
         assert created.status_code == 201
         assert len(api_client.get(f'/api/tags/{tag.slug}/retrieve').data['questions']) == 1

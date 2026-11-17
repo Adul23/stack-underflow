@@ -153,7 +153,10 @@ class QuestionViewSet(ViewSet):
             OpenApiParameter(
                 "search",
                 str,
-                description="Keyword search on question title and description (case-insensitive; space-separated terms must all match).",
+                description=(
+                    "Keyword search on question title and description "
+                    "(case-insensitive; space-separated terms must all match)."
+                ),
             ),
             OpenApiParameter(
                 "tag",
@@ -194,9 +197,7 @@ class QuestionViewSet(ViewSet):
             ),
         ],
     )
-    @action(
-        methods=["GET"], permission_classes=(AllowAny,), url_path="list", detail=False
-    )
+    @action(methods=["GET"], permission_classes=(AllowAny,), url_path="list", detail=False)
     def list_questions(self, request: DRFRequest, *args, **kwargs) -> DRFResponse:
         search = request.GET.get("search", "").strip()
         if search or request.GET.get("tag", "").strip():

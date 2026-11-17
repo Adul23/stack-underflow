@@ -1,5 +1,7 @@
 # Stack underflow — Developer Q&A Platform
 
+[![CI](https://github.com/Adul23/stack-underflow/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Adul23/stack-underflow/actions/workflows/ci.yml)
+
 A minimal Q&A platform where users can ask questions, add tags, browse existing
 questions, search by keywords/tags, and leave answers/comments.
 
@@ -126,6 +128,11 @@ Compose sets DB_HOST=db inside the backend container. Start Angular using the
 same npm commands. Existing Redis and Celery services are behind the legacy profile.
 
 ## Verify the MVP
+
+GitHub Actions runs on pushes and pull requests to `main`: the backend job uses
+Python 3.12, runs Ruff and the MVP pytest suite against PostgreSQL 16, then builds
+the backend Docker image. A separate job runs `npm ci` and `npm run build` for
+Angular using Node.js 18. The legacy Redis/Channels tests are excluded, as below.
 
 With the virtual environment activated, from backend/:
 

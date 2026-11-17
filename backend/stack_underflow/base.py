@@ -1,8 +1,16 @@
 import os
 from pathlib import Path
 
+from decouple import config
+
 # Project imports
-from stack_underflow.conf import *
+from stack_underflow.conf import *  # noqa: F403 -- Compose the shared Django settings.
+from stack_underflow.conf import (
+    REDIS_HOST,
+    REDIS_PORT,
+    STACK_UNDERFLOW_CHANNELS_REDIS_HOST,
+    STACK_UNDERFLOW_CHANNELS_REDIS_PORT,
+)
 
 # ----------------------------------------------
 # Path
