@@ -5,7 +5,7 @@ same PostgreSQL database as questions. Django admin shows them under Questions.
 
 | Event | Created when |
 | --- | --- |
-| `search` | A nonempty `q` is sent to the question list endpoint, including a debounced suggestion request. |
+| `search` | A nonempty `q` or `search` is sent to the question list endpoint, including a debounced suggestion request. A `tag` filter alone is not recorded. |
 | `question_view` | A question detail request succeeds, including opening a suggestion. Reloading counts again. |
 | `question_created` | An authenticated user successfully creates a question and its tag links. |
 
@@ -17,7 +17,7 @@ same PostgreSQL database as questions. Django admin shows them under Questions.
 | `question_id` | Nullable foreign key to questions_question. |
 | `session_id` | Nullable browser session UUID (varchar 64). |
 | `search_query` | Nullable search text, trimmed and limited to 255 characters in the event. |
-| `metadata` | Nullable JSONB. Search records contain only source: suggestion or submit. |
+| `metadata` | Nullable JSONB. Search records contain source (suggestion or submit) and, for `search` with a tag filter, the tag value. |
 | `created_at` | Automatic timestamp with time zone. |
 
 The Angular interceptor generates a random UUID in sessionStorage and sends it

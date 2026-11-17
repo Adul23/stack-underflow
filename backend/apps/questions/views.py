@@ -116,6 +116,16 @@ class QuestionViewSet(ViewSet):
             context["user_id"] = request.user.id
         return context
 
+    def _log_search(self, request: DRFRequest, query: str, metadata: dict) -> None:
+        """Store a `search` analytics event (see docs/analytics.md)."""
+        AnalyticsEvent.objects.create(
+            event_name="search",
+            user=request.user if request.user.is_authenticated else None,
+            search_query=query[:255],
+            session_id=get_session_id(request),
+            metadata=metadata,
+        )
+
     def search_queryset(self, request: DRFRequest):
         """Queryset for ?search= (title/description) and ?tag= (slug or name).
 
@@ -188,8 +198,14 @@ class QuestionViewSet(ViewSet):
         methods=["GET"], permission_classes=(AllowAny,), url_path="list", detail=False
     )
     def list_questions(self, request: DRFRequest, *args, **kwargs) -> DRFResponse:
-        if request.GET.get("search", "").strip() or request.GET.get("tag", "").strip():
+        search = request.GET.get("search", "").strip()
+        if search or request.GET.get("tag", "").strip():
             questions = self.search_queryset(request)
+            if search:
+                metadata = {"source": "submit"}
+                if request.GET.get("tag", "").strip():
+                    metadata["tag"] = request.GET["tag"].strip()[:100]
+                self._log_search(request, search, metadata)
             return DRFResponse(
                 QuestionListSerializer(questions, many=True).data, status=HTTP_200_OK
             )
@@ -201,12 +217,10 @@ class QuestionViewSet(ViewSet):
                 | Q(description__icontains=query)
                 | Q(tag__name__icontains=query)
             ).distinct()
-            AnalyticsEvent.objects.create(
-                event_name="search",
-                user=request.user if request.user.is_authenticated else None,
-                search_query=query[:255],
-                session_id=get_session_id(request),
-                metadata={"source": "suggestion" if request.GET.get("suggest") == "1" else "submit"},
+            self._log_search(
+                request,
+                query,
+                {"source": "suggestion" if request.GET.get("suggest") == "1" else "submit"},
             )
             questions = questions.order_by("-created_at", "-id")[:5 if request.GET.get("suggest") == "1" else 50]
             return DRFResponse(QuestionListSerializer(questions, many=True).data)

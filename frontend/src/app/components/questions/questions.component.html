@@ -4,9 +4,14 @@
     </div>
 
     <h1>Questions</h1>
-    <form (ngSubmit)="search()" class="d-flex gap-2 mb-4">
-        <input class="form-control" name="search" [(ngModel)]="query" (ngModelChange)="onQueryChange($event)" autocomplete="off" placeholder="Search questions..." aria-label="Search questions" />
+    <form (ngSubmit)="search()" class="search-form d-flex flex-wrap gap-2 mb-4" role="search">
+        <input class="form-control search-input" name="search" [(ngModel)]="query" (ngModelChange)="onQueryChange($event)" autocomplete="off" placeholder="Search questions..." aria-label="Search questions" />
+        <select class="form-select tag-select" name="tag" [(ngModel)]="selectedTag" (ngModelChange)="search()" aria-label="Filter by tag">
+            <option value="">All tags</option>
+            <option *ngFor="let tag of tags" [value]="tag.slug">#{{ tag.name }}</option>
+        </select>
         <button class="btn btn-primary" type="submit" [disabled]="loading">Search</button>
+        <button *ngIf="hasFilters" class="btn btn-outline-secondary" type="button" (click)="clearFilters()">Clear</button>
     </form>
     <ul *ngIf="suggestions.length" class="list-group mb-4" aria-label="Suggested questions">
         <li *ngFor="let suggestion of suggestions" class="list-group-item">
@@ -29,9 +34,9 @@
 
             <!-- ✅ теги -->
             <div class="question-tags">
-                <span *ngFor="let tagId of question.tag.slice(0, 3)" class="tag">
+                <button *ngFor="let tagId of question.tag.slice(0, 3)" type="button" class="tag" (click)="filterByTag(tagId)" [attr.aria-label]="'Show questions tagged ' + getTagName(tagId)">
                     #{{ getTagName(tagId) }}
-                </span>
+                </button>
                 <span *ngIf="question.tag.length > 3" class="tag tag-more">
                     +{{ question.tag.length - 3 }}
                 </span>

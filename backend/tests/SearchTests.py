@@ -1,6 +1,6 @@
 import pytest
 
-from apps.questions.models import Question
+from apps.questions.models import AnalyticsEvent, Question
 from apps.tags.models import Tag
 
 URL = "/api/questions/list"
@@ -65,3 +65,20 @@ class TestQuestionSearch:
     def test_search_does_not_poison_list_cache(self, api_client, question, other_question):
         api_client.get(URL, {"search": "django"})
         assert len(api_client.get(URL).data) == 2
+
+
+@pytest.mark.django_db
+class TestSearchAnalytics:
+    """Submitted ?search= requests are recorded like the legacy ?q= submit."""
+
+    def test_keyword_search_logs_event(self, auth_client, user, question):
+        auth_client.get(URL, {"search": " django ", "tag": "python"})
+        event = AnalyticsEvent.objects.get()
+        assert event.event_name == "search"
+        assert event.search_query == "django"
+        assert event.user == user
+        assert event.metadata == {"source": "submit", "tag": "python"}
+
+    def test_tag_only_filter_logs_nothing(self, api_client, question):
+        api_client.get(URL, {"tag": "python"})
+        assert not AnalyticsEvent.objects.exists()
