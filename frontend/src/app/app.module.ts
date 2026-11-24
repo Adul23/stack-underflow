@@ -1,3 +1,4 @@
+import { AnalyticsComponent } from './components/analytics/analytics.component';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -28,6 +29,7 @@ import { ProfileComponent } from './components/profile/profile.component';
 
 @NgModule({
   declarations: [
+    AnalyticsComponent,
     AppComponent,
     HomeComponent,
     QuestionsComponent,

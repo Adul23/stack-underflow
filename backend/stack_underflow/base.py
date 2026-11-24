@@ -24,7 +24,7 @@ IMPORTED_APPS = [
     "drf_spectacular",
 ]
 
-PROJECT_APPS = ["apps.users", "apps.tags", "apps.questions", "apps.comments", "apps.abstract"]
+PROJECT_APPS = ["apps.users", "apps.tags", "apps.questions", "apps.comments", "apps.abstract", "apps.analytics"]
 
 INSTALLED_APPS = PROJECT_APPS + IMPORTED_APPS
 

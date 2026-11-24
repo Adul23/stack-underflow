@@ -4,6 +4,7 @@ services:
   backend:
     build: ./backend
     container_name: stack-underflow-backend
+    restart: unless-stopped
     volumes:
       - ./backend:/app
     working_dir: /app
@@ -21,6 +22,7 @@ services:
   db:
     image: postgres:16
     container_name: stack-underflow-db
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in backend/.env}
