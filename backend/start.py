@@ -13,6 +13,9 @@ BACKEND_DIR = Path(__file__).resolve().parent
 def main():
     os.chdir(BACKEND_DIR)
     subprocess.run([sys.executable, "manage.py", "migrate", "--noinput"], check=True)
+    # Create the demo admin from DJANGO_SUPERUSER_* env vars; skip quietly if it already exists.
+    if config("DJANGO_SUPERUSER_EMAIL", default=""):
+        subprocess.run([sys.executable, "manage.py", "createsuperuser", "--noinput"], check=False)
     if config("SEED_DEMO_DATA", default=True, cast=bool):
         subprocess.run([sys.executable, "seed_demo.py"], check=True)
     subprocess.run([sys.executable, "manage.py", "collectstatic", "--noinput"], check=True)
