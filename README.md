@@ -1,5 +1,7 @@
 # Stack underflow — Developer Q&A Platform
 
+[![CI](https://github.com/Adul23/stack-underflow/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Adul23/stack-underflow/actions/workflows/ci.yml)
+
 A minimal Q&A platform where users can ask questions, add tags, browse existing
 questions, search by keywords/tags, and leave answers/comments.
 
@@ -134,6 +136,11 @@ or Python Start Command `python start.py` with Root Directory `backend`.
 See [demo data and Render settings](docs/deployment.md#automatic-demo-data-on-docker-and-render).
 
 ## Verify the MVP
+
+GitHub Actions runs on pushes and pull requests to `main`: the backend job uses
+Python 3.12, runs Ruff and the MVP pytest suite against PostgreSQL 16, then builds
+the backend Docker image. A separate job runs `npm ci` and `npm run build` for
+Angular using Node.js 18. The legacy Redis/Channels tests are excluded, as below.
 
 With the virtual environment activated, from backend/:
 

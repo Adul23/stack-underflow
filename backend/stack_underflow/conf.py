@@ -1,7 +1,7 @@
 # Python imports
 import os
 
-from decouple import config, Csv
+from decouple import Csv, config
 
 # Project modules
 

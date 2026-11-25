@@ -115,7 +115,6 @@ class TestCommentCacheHits:
         api_client.get(url)
         assert cache.get(cache_key) is not None
 
-        comment_pk = comment.pk
         comment_text = comment.text
         comment.delete()
 

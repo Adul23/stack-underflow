@@ -1,5 +1,3 @@
-
-
 # Rest-Framework imports
 from logging import getLogger
 
@@ -82,7 +80,9 @@ class CommentViewSet(ViewSet):
         summary="List all comments",
         description="Returns a list of all comments. Authentication is not required.",
         responses={
-            200: OpenApiResponse(response=CommentListSerializer(many=True), description="Comments were returned successfully."),
+            200: OpenApiResponse(
+                response=CommentListSerializer(many=True), description="Comments were returned successfully."
+            ),
             400: VALIDATION_400,
             401: ERROR_401,
             403: ERROR_403,
@@ -101,8 +101,6 @@ class CommentViewSet(ViewSet):
             ),
         ],
     )
-
-
     @action(methods=["GET"], permission_classes=[AllowAny], url_path="list", detail=False)
     def list_comments(self, request: DRFRequest, *args, **kwargs) -> DRFResponse:
         comments = cache.get("list_comments")
@@ -113,7 +111,6 @@ class CommentViewSet(ViewSet):
         serializer = CommentListSerializer(comments, many=True)
         cache.set("list_comments", serializer.data)
         return DRFResponse(serializer.data, status=HTTP_200_OK)
-
 
     @extend_schema(
         tags=["Comments"],
@@ -219,16 +216,15 @@ class CommentViewSet(ViewSet):
             logger.warning(f"Retrieve of Comment {pk} failed: Comment does not exist", extra=log_extra)
             return DRFResponse({"detail": "The comment does not exist"}, status=HTTP_404_NOT_FOUND)
 
-
         serializer = CommentRetrieveSerializer(comment)
         cache.set(f"comment_pk_{kwargs.get("pk")}", serializer.data, timeout=600)
         logger.info("Retrieve of Comment by pk is successful", extra=log_extra)
-
 
         return DRFResponse(
             {"data": serializer.data,},
             status=HTTP_200_OK,
         )
+
     @extend_schema(
         tags=["Comments"],
         summary="Update comment by id",
@@ -243,15 +239,30 @@ class CommentViewSet(ViewSet):
             429: ERROR_429,
         },
         examples=[
-            OpenApiExample("Update comment request example", request_only=True, value={"text": "Updated comment text"}),
+            OpenApiExample(
+                "Update comment request example", request_only=True, value={"text": "Updated comment text"}
+            ),
             OpenApiExample(
                 "Update comment response example",
                 response_only=True,
                 status_codes=["200"],
-                value={"details": "The comment successfully updated", "data": {"id": 1, "text": "Updated comment text"}},
+                value={
+                    "details": "The comment successfully updated",
+                    "data": {"id": 1, "text": "Updated comment text"},
+                },
             ),
-            OpenApiExample("Update comment forbidden example", response_only=True, status_codes=["403"], value={"detail": "You can edit only your comment"}),
-            OpenApiExample("Update comment not found example", response_only=True, status_codes=["404"], value={"detail": "The comment does not exist"}),
+            OpenApiExample(
+                "Update comment forbidden example",
+                response_only=True,
+                status_codes=["403"],
+                value={"detail": "You can edit only your comment"},
+            ),
+            OpenApiExample(
+                "Update comment not found example",
+                response_only=True,
+                status_codes=["404"],
+                value={"detail": "The comment does not exist"},
+            ),
         ],
     )
     @action(methods=["PATCH"], permission_classes=[IsAuthenticated], url_path="update", detail=True)
@@ -286,16 +297,19 @@ class CommentViewSet(ViewSet):
             status=HTTP_200_OK,
         )
 
-
     @extend_schema(
         tags=["Comments"],
         summary="List comments by author",
         description="Returns comments by a specific author. Pass author ID as a query parameter.",
         parameters=[
-            OpenApiParameter(name="author", type=int, location=OpenApiParameter.QUERY, required=True, description="Author user ID")
+            OpenApiParameter(
+                name="author", type=int, location=OpenApiParameter.QUERY, required=True, description="Author user ID"
+            )
         ],
         responses={
-            200: OpenApiResponse(response=CommentListSerializer(many=True), description="Comments by author were returned successfully."),
+            200: OpenApiResponse(
+                response=CommentListSerializer(many=True), description="Comments by author were returned successfully."
+            ),
             400: VALIDATION_400,
             401: ERROR_401,
             403: ERROR_403,
@@ -303,8 +317,18 @@ class CommentViewSet(ViewSet):
             429: ERROR_429,
         },
         examples=[
-            OpenApiExample("List comments by author response example", response_only=True, status_codes=["200"], value=[{"id": 3, "text": "This is my comment."}]),
-            OpenApiExample("Author query param missing example", response_only=True, status_codes=["400"], value={"detail": "author is required"}),
+            OpenApiExample(
+                "List comments by author response example",
+                response_only=True,
+                status_codes=["200"],
+                value=[{"id": 3, "text": "This is my comment."}],
+            ),
+            OpenApiExample(
+                "Author query param missing example",
+                response_only=True,
+                status_codes=["400"],
+                value={"detail": "author is required"},
+            ),
         ],
     )
     @action(methods=["GET"], permission_classes=[AllowAny], url_path="list_by_author", detail=False)

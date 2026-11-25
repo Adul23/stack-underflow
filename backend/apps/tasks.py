@@ -9,7 +9,9 @@ from django.core.mail import send_mail
 def send_confirmation_mail(user_email : Any | str) -> int:
     subject = "Confirmation Mail"
     message = "If you are seeing this then the email that you sent is correct"
-    return send_mail(subject=subject, message=message, from_email=settings.DEFAULT_FROM_EMAIL, recipient_list=[user_email])
+    return send_mail(
+        subject=subject, message=message, from_email=settings.DEFAULT_FROM_EMAIL, recipient_list=[user_email]
+    )
 
 
 @shared_task
@@ -18,4 +20,3 @@ def cleanup_expired_sessions():
 
     now = timezone.now().isoformat()
     return f'Periodic health check at {now}'
-

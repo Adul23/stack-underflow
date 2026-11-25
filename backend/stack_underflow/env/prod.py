@@ -1,6 +1,7 @@
 import dj_database_url
+from decouple import Csv, config
 
-from stack_underflow.base import *
+from stack_underflow.base import *  # noqa: F403 -- Inherit all shared Django settings.
 
 DEBUG = False
 # ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())

@@ -26,7 +26,9 @@ comment_schema = extend_schema_view(
         summary="List all comments",
         description="Returns a list of all comments. Authentication is not required.",
         responses={
-            200: OpenApiResponse(response=CommentListSerializer(many=True), description="Comments were returned successfully."),
+            200: OpenApiResponse(
+                response=CommentListSerializer(many=True), description="Comments were returned successfully."
+            ),
             400: VALIDATION_400,
             401: ERROR_401,
             403: ERROR_403,
@@ -86,15 +88,30 @@ comment_schema = extend_schema_view(
             429: ERROR_429,
         },
         examples=[
-            OpenApiExample("Update comment request example", request_only=True, value={"text": "Updated comment text"}),
+            OpenApiExample(
+                "Update comment request example", request_only=True, value={"text": "Updated comment text"}
+            ),
             OpenApiExample(
                 "Update comment response example",
                 response_only=True,
                 status_codes=["200"],
-                value={"details": "The comment successfully updated", "data": {"id": 1, "text": "Updated comment text"}},
+                value={
+                    "details": "The comment successfully updated",
+                    "data": {"id": 1, "text": "Updated comment text"},
+                },
             ),
-            OpenApiExample("Update comment forbidden example", response_only=True, status_codes=["403"], value={"detail": "You can edit only your comment"}),
-            OpenApiExample("Update comment not found example", response_only=True, status_codes=["404"], value={"detail": "The comment does not exist"}),
+            OpenApiExample(
+                "Update comment forbidden example",
+                response_only=True,
+                status_codes=["403"],
+                value={"detail": "You can edit only your comment"},
+            ),
+            OpenApiExample(
+                "Update comment not found example",
+                response_only=True,
+                status_codes=["404"],
+                value={"detail": "The comment does not exist"},
+            ),
         ],
     ),
     list_comments_by_author=extend_schema(
@@ -102,10 +119,14 @@ comment_schema = extend_schema_view(
         summary="List comments by author",
         description="Returns comments by a specific author. Pass author ID as a query parameter.",
         parameters=[
-            OpenApiParameter(name="author", type=int, location=OpenApiParameter.QUERY, required=True, description="Author user ID")
+            OpenApiParameter(
+                name="author", type=int, location=OpenApiParameter.QUERY, required=True, description="Author user ID"
+            )
         ],
         responses={
-            200: OpenApiResponse(response=CommentListSerializer(many=True), description="Comments by author were returned successfully."),
+            200: OpenApiResponse(
+                response=CommentListSerializer(many=True), description="Comments by author were returned successfully."
+            ),
             400: ERROR_401,
             401: ERROR_401,
             403: ERROR_403,
@@ -113,8 +134,18 @@ comment_schema = extend_schema_view(
             429: ERROR_429,
         },
         examples=[
-            OpenApiExample("List comments by author response example", response_only=True, status_codes=["200"], value=[{"id": 3, "text": "This is my comment."}]),
-            OpenApiExample("Author query param missing example", response_only=True, status_codes=["400"], value={"detail": "author is required"}),
+            OpenApiExample(
+                "List comments by author response example",
+                response_only=True,
+                status_codes=["200"],
+                value=[{"id": 3, "text": "This is my comment."}],
+            ),
+            OpenApiExample(
+                "Author query param missing example",
+                response_only=True,
+                status_codes=["400"],
+                value={"detail": "author is required"},
+            ),
         ],
     ),
 )
